@@ -1,21 +1,12 @@
-# NEX Ledger Backend
+# NEX Ledger
 
-FastAPI backend pre NEX Ledger — multi-tenant accounting systém.
+Accounting module for NEX ecosystem. Double-entry bookkeeping, Slovak legislation.
 
-## Development
+**Status:** Initializing — clean slate after crash test audit.
 
-```bash
-poetry install
-poetry run uvicorn app.main:app --reload --port 9180
-```
+## Ports
+- Backend: 9180
+- Frontend: 9181
 
-## Docker
-
-```bash
-docker build -t nex-ledger-backend .
-docker run -p 9180:9180 --env-file .env nex-ledger-backend
-```
-
-## Endpoints
-
-- `GET /health` — Health check
+## Design
+See `/home/icc/knowledge/projects/nex-ledger/DESIGN.md`
