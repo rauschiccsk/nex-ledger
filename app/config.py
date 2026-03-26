@@ -1,6 +1,6 @@
 """Application configuration using Pydantic BaseSettings"""
+
 from pydantic_settings import BaseSettings
-from typing import List
 
 
 class Settings(BaseSettings):
@@ -17,7 +17,7 @@ class Settings(BaseSettings):
     ENV: str = "development"
 
     # CORS
-    CORS_ORIGINS: List[str] = ["http://localhost:3000", "http://localhost:9180"]
+    CORS_ORIGINS: list[str] = ["http://localhost:3000", "http://localhost:9180"]
 
     class Config:
         env_file = ".env"
