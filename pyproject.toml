@@ -1,0 +1,47 @@
+[tool.poetry]
+package-mode = false
+
+[project]
+name = "nex-ledger"
+version = "0.1.0"
+description = "NEX Ledger - Backend API"
+authors = [
+    {name = "ICC Team", email = "dev@icc.sk"}
+]
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "fastapi (>=0.109.0,<0.110.0)",
+    "uvicorn[standard] (>=0.27.0,<0.28.0)",
+    "sqlalchemy (>=2.0.25,<3.0.0)",
+    "pg8000 (>=1.30.4,<2.0.0)",
+    "pydantic (>=2.5.3,<3.0.0)",
+    "pydantic-settings (>=2.1.0,<3.0.0)",
+    "requests (>=2.31.0,<3.0.0)"
+]
+
+[dependency-groups]
+dev = [
+    "pytest (>=7.4.4,<8.0.0)",
+    "pytest-asyncio (>=0.23.3,<0.24.0)",
+    "httpx (>=0.26.0,<0.27.0)",
+    "ruff (>=0.1.14,<0.2.0)"
+]
+
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "N", "W", "UP"]
+ignore = []
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = "test_*.py"
+python_classes = "Test*"
+python_functions = "test_*"
+
+[build-system]
+requires = ["poetry-core>=2.0.0,<3.0.0"]
+build-backend = "poetry.core.masonry.api"
