@@ -1,17 +1,17 @@
 # Build stage
-FROM python:3.12-slim as builder
+FROM python:3.12-slim AS builder
 
 WORKDIR /app
 
 # Install poetry
-RUN pip install --no-cache-dir poetry==1.8.2
+RUN pip install --no-cache-dir poetry==2.1.3
 
 # Copy dependency files
 COPY pyproject.toml poetry.lock* ./
 
 # Install dependencies
 RUN poetry config virtualenvs.create false \
-    && poetry install --no-interaction --no-ansi --only main
+    && poetry install --no-interaction --no-ansi --no-root --without dev
 
 # Runtime stage
 FROM python:3.12-slim
