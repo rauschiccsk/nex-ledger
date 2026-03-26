@@ -1,4 +1,4 @@
-"""NEX Ledger FastAPI Application."""
+"""NEX Ledger — FastAPI application entrypoint."""
 
 from collections.abc import AsyncIterator
 from contextlib import asynccontextmanager
@@ -21,7 +21,8 @@ async def lifespan(application: FastAPI) -> AsyncIterator[None]:
 
 
 app = FastAPI(
-    title="NEX Ledger API",
+    title="NEX Ledger",
+    description="Invoice management system",
     version="0.1.0",
     lifespan=lifespan,
 )
@@ -37,7 +38,7 @@ app.add_middleware(
 
 
 @app.get("/health")
-def health_check() -> dict[str, str]:
+async def health_check():
     """Health check endpoint."""
     return {"status": "ok", "service": "nex-ledger"}
 
