@@ -1,4 +1,6 @@
-"""NEX Ledger FastAPI Application"""
+"""NEX Ledger FastAPI Application."""
+
+from collections.abc import AsyncIterator
 from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
@@ -9,8 +11,8 @@ from app.database import Base, engine
 
 
 @asynccontextmanager
-async def lifespan(app: FastAPI):
-    """Application lifespan events"""
+async def lifespan(application: FastAPI) -> AsyncIterator[None]:
+    """Application lifespan events."""
     # Startup: create tables
     Base.metadata.create_all(bind=engine)
     yield
@@ -21,7 +23,7 @@ async def lifespan(app: FastAPI):
 app = FastAPI(
     title="NEX Ledger API",
     version="0.1.0",
-    lifespan=lifespan
+    lifespan=lifespan,
 )
 
 # CORS middleware
@@ -35,10 +37,12 @@ app.add_middleware(
 
 
 @app.get("/health")
-async def health_check():
-    """Health check endpoint"""
-    return {
-        "status": "healthy",
-        "service": "nex-ledger",
-        "version": "0.1.0"
-    }
+def health_check() -> dict[str, str]:
+    """Health check endpoint."""
+    return {"status": "ok", "service": "nex-ledger"}
+
+
+if __name__ == "__main__":
+    import uvicorn
+
+    uvicorn.run(app, host="0.0.0.0", port=settings.PORT)

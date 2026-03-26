@@ -5,88 +5,13 @@ Accounting module for NEX ecosystem. Double-entry bookkeeping, Slovak legislatio
 **Status:** Initializing — clean slate after crash test audit.
 
 ## Ports
+
 - Backend: 9180
 - Frontend: 9181
 
 ## Design
+
 See `/home/icc/knowledge/projects/nex-ledger/DESIGN.md`
-
-## Backend Setup
-
-### Prerequisites
-- Python 3.12+
-- Poetry
-- PostgreSQL 16
-- Docker & Docker Compose (optional)
-
-### Local Development
-
-1. **Install dependencies:**
-   ```bash
-   poetry install
-   ```
-
-2. **Configure environment:**
-   ```bash
-   cp .env.example .env
-   # Edit .env with your database credentials
-   ```
-
-3. **Start PostgreSQL:**
-   ```bash
-   # Using Docker:
-   docker run -d --name nex-ledger-postgres \
-     -e POSTGRES_USER=ledger \
-     -e POSTGRES_PASSWORD=ledger \
-     -e POSTGRES_DB=nex_ledger \
-     -p 5432:5432 \
-     postgres:16-alpine
-   ```
-
-4. **Run application:**
-   ```bash
-   poetry run uvicorn app.main:app --reload --port 9180
-   ```
-
-5. **Access API:**
-   - Health check: http://localhost:9180/health
-   - API docs: http://localhost:9180/docs
-
-### Docker Deployment
-
-```bash
-# Build and start all services
-docker-compose up -d
-
-# View logs
-docker-compose logs -f ledger-api
-
-# Stop services
-docker-compose down
-```
-
-### Testing
-
-```bash
-# Run all tests
-poetry run pytest
-
-# Run with coverage
-poetry run pytest --cov=app --cov-report=html
-
-# Run specific test
-poetry run pytest tests/test_health.py -v
-```
-
-### Linting
-
-```bash
-# Check code style
-poetry run ruff check .
-
-# Auto-fix issues
-poetry run ruff check . --fix
-```
 
 ## Project Structure
 
@@ -101,18 +26,111 @@ nex-ledger/
 │       └── __init__.py
 ├── tests/
 │   ├── __init__.py
-│   ├── conftest.py          # Pytest fixtures
+│   ├── conftest.py          # Pytest fixtures (PostgreSQL)
 │   └── test_health.py       # Health endpoint tests
 ├── .github/
 │   └── workflows/
-│       └── backend-ci.yml   # CI/CD pipeline
+│       └── backend-ci.yml   # CI/CD pipeline (lint, test, build)
 ├── Dockerfile               # Multi-stage Docker build
-├── docker-compose.yml       # Local development setup
+├── docker-compose.yml       # PostgreSQL + API services
 ├── pyproject.toml           # Poetry dependencies
 ├── .env.example             # Environment template
 ├── .gitignore
 ├── .dockerignore
 └── README.md
+```
+
+## Local Development
+
+### Prerequisites
+
+- Python 3.12+
+- Poetry
+- PostgreSQL 16
+- Docker & Docker Compose (optional)
+
+### Setup
+
+1. **Install dependencies:**
+   ```bash
+   poetry install
+   ```
+
+2. **Configure environment:**
+   ```bash
+   cp .env.example .env
+   # Edit .env with your database credentials
+   ```
+
+3. **Start PostgreSQL (via docker-compose):**
+   ```bash
+   docker-compose up -d postgres
+   ```
+
+4. **Run application:**
+   ```bash
+   poetry run uvicorn app.main:app --reload --port 9180
+   ```
+
+5. **Access API:**
+   - Health check: http://localhost:9180/health
+   - API docs: http://localhost:9180/docs
+
+## Docker Deployment
+
+```bash
+# Build and start all services
+docker-compose up -d
+
+# View logs
+docker-compose logs -f ledger-api
+
+# Stop services
+docker-compose down
+```
+
+## Testing
+
+Tests use PostgreSQL (SQLite is forbidden). A test database is required.
+
+```bash
+# Start test database
+docker-compose up -d postgres
+
+# Run all tests
+poetry run pytest -v
+
+# Run with coverage
+poetry run pytest --cov=app --cov-report=html
+
+# Run specific test
+poetry run pytest tests/test_health.py -v
+```
+
+## Linting
+
+```bash
+# Check code style
+poetry run ruff check .
+
+# Auto-fix issues
+poetry run ruff check . --fix
+```
+
+## Environment Variables
+
+| Variable | Default | Description |
+|---|---|---|
+| `DATABASE_URL` | `postgresql+pg8000://ledger:ledger@localhost:5432/nex_ledger` | PostgreSQL connection string (pg8000 driver) |
+| `PORT` | `9180` | Application port |
+| `ENV` | `development` | Environment (development/production) |
+| `CORS_ORIGINS` | `["*"]` | Allowed CORS origins |
+
+## Health Check
+
+```bash
+curl http://localhost:9180/health
+# {"status": "ok", "service": "nex-ledger"}
 ```
 
 ## Tech Stack
