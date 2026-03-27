@@ -36,7 +36,7 @@ jobs:
         image: postgres:16-alpine
         env:
           POSTGRES_USER: ledger
-          POSTGRES_PASSWORD: ledger
+          POSTGRES_PASSWORD: ledger_dev_pass
           POSTGRES_DB: nex_ledger_test
         ports:
           - 5433:5432
@@ -63,8 +63,8 @@ jobs:
       - name: Run pytest
         run: poetry run pytest -v --tb=short --cov=app
         env:
-          DATABASE_URL: postgresql+pg8000://ledger:ledger@localhost:5433/nex_ledger_test
-          TEST_DATABASE_URL: postgresql+pg8000://ledger:ledger@localhost:5433/nex_ledger_test
+          DATABASE_URL: postgresql+pg8000://ledger:ledger_dev_pass@localhost:5433/nex_ledger_test
+          TEST_DATABASE_URL: postgresql+pg8000://ledger:ledger_dev_pass@localhost:5433/nex_ledger_test
 
   build:
     name: Build Docker Image

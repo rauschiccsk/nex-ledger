@@ -1,4 +1,5 @@
 .git
+.gitignore
 .github
 __pycache__
 *.pyc
@@ -8,13 +9,15 @@ __pycache__
 .env
 .venv
 venv/
-*.egg-info
-.pytest_cache
-.ruff_cache
-.coverage
-htmlcov/
+ENV/
+env/
+*.egg-info/
 dist/
 build/
-*.log
+.pytest_cache/
+.coverage
+htmlcov/
+.ruff_cache/
 tests/
+*.log
 *.db

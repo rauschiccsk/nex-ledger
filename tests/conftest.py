@@ -13,7 +13,7 @@ from app.main import app
 # MUST use PostgreSQL for tests — SQLite is FORBIDDEN
 TEST_DATABASE_URL = os.environ.get(
     "TEST_DATABASE_URL",
-    "postgresql+pg8000://ledger:ledger@localhost:9165/nex_ledger_test",
+    "postgresql+pg8000://ledger:ledger_dev_pass@localhost:9181/nex_ledger_test",
 )
 
 

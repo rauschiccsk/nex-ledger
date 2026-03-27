@@ -7,7 +7,7 @@ from sqlalchemy.orm import Session, declarative_base, sessionmaker
 
 from app.config import settings
 
-# Create engine with pg8000 driver — SQLite is FORBIDDEN
+# Create engine with pg8000 driver (sync only)
 engine = create_engine(
     settings.DATABASE_URL,
     echo=settings.ENV == "development",

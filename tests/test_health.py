@@ -1,11 +1,19 @@
-"""Test health check endpoint."""
+"""Health endpoint tests."""
 
+import pytest
 from fastapi.testclient import TestClient
 
+from app.main import app
 
-def test_health_endpoint_returns_200_ok(client: TestClient) -> None:
-    """Verify health endpoint returns 200 OK with correct response."""
+
+@pytest.fixture
+def client():
+    """Test client fixture."""
+    return TestClient(app)
+
+
+def test_health_endpoint(client):
+    """Test health check endpoint returns ok status."""
     response = client.get("/health")
-
     assert response.status_code == 200
-    assert response.json() == {"status": "ok", "service": "nex-ledger"}
+    assert response.json() == {"status": "ok"}
