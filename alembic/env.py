@@ -12,14 +12,9 @@ from alembic import context
 
 # Import Base and all models for autogenerate support
 from app.database import settings
+from app.models.account_type import AccountType  # noqa: F401
 from app.models.base import Base
-
-# Import all models for autogenerate support
 from app.models.currency import Currency  # noqa: F401
-
-# Future models will be imported here:
-# from app.models.company import Company
-# from app.models.invoice import Invoice
 
 # Alembic Config object
 config = context.config
