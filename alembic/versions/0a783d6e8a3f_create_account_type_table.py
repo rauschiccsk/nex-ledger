@@ -8,6 +8,7 @@ Create Date: 2026-03-27 17:36:02.220699
 from collections.abc import Sequence
 
 import sqlalchemy as sa
+from sqlalchemy.dialects import postgresql
 
 from alembic import op
 
@@ -20,27 +21,24 @@ depends_on: str | Sequence[str] | None = None
 
 def upgrade() -> None:
     """Upgrade schema."""
-    # Create PostgreSQL ENUM types
-    account_category_enum = sa.Enum(
-        'asset', 'liability', 'equity', 'revenue', 'expense',
-        name='account_category_enum',
+    # Create PostgreSQL ENUM types via raw SQL
+    op.execute(
+        "CREATE TYPE account_category_enum AS ENUM "
+        "('asset', 'liability', 'equity', 'revenue', 'expense')"
     )
-    account_category_enum.create(op.get_bind(), checkfirst=True)
-
-    normal_balance_enum = sa.Enum(
-        'debit', 'credit',
-        name='normal_balance_enum',
+    op.execute(
+        "CREATE TYPE normal_balance_enum AS ENUM ('debit', 'credit')"
     )
-    normal_balance_enum.create(op.get_bind(), checkfirst=True)
 
-    # Create account_type table
+    # Create table using postgresql.ENUM to reference pre-created types
+    # (avoids SQLAlchemy auto-create behavior of sa.Enum)
     op.create_table(
         'account_type',
         sa.Column('code', sa.String(length=20), nullable=False),
         sa.Column('name', sa.String(length=100), nullable=False),
         sa.Column(
             'category',
-            sa.Enum(
+            postgresql.ENUM(
                 'asset', 'liability', 'equity', 'revenue', 'expense',
                 name='account_category_enum',
                 create_type=False,
@@ -49,7 +47,11 @@ def upgrade() -> None:
         ),
         sa.Column(
             'normal_balance',
-            sa.Enum('debit', 'credit', name='normal_balance_enum', create_type=False),
+            postgresql.ENUM(
+                'debit', 'credit',
+                name='normal_balance_enum',
+                create_type=False,
+            ),
             nullable=False,
         ),
         sa.Column('is_system', sa.Boolean(), nullable=False),
@@ -83,5 +85,5 @@ def downgrade() -> None:
     op.drop_table('account_type')
 
     # Drop PostgreSQL ENUM types
-    sa.Enum(name='normal_balance_enum').drop(op.get_bind(), checkfirst=True)
-    sa.Enum(name='account_category_enum').drop(op.get_bind(), checkfirst=True)
+    op.execute('DROP TYPE IF EXISTS normal_balance_enum')
+    op.execute('DROP TYPE IF EXISTS account_category_enum')
