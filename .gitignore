@@ -43,9 +43,15 @@ env/
 htmlcov/
 *.cover
 
+# Ruff
+.ruff_cache/
+
 # Logs
 *.log
 
 # OS
 .DS_Store
 Thumbs.db
+
+# Docker volumes
+postgres_data/
