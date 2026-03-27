@@ -1,0 +1,60 @@
+name: Deploy
+
+on:
+  workflow_dispatch:
+
+permissions:
+  actions: read
+  contents: read
+
+jobs:
+  deploy:
+    runs-on: [self-hosted, andros]
+    steps:
+      - name: Pull latest code
+        run: |
+          cd /opt/nex-ledger-src
+          git pull origin main
+          echo "Commit: $(git log --oneline -1)"
+
+      - name: Stop containers
+        run: |
+          cd /opt/nex-ledger-src
+          docker compose down
+          echo "Containers stopped"
+
+      - name: Build and start containers
+        run: |
+          cd /opt/nex-ledger-src
+          docker compose up -d --build
+          echo "Containers started"
+
+      - name: Wait for healthy state
+        run: |
+          echo "Waiting for containers to become healthy..."
+          for i in $(seq 1 12); do
+            if curl -sf http://localhost:9180/health > /dev/null 2>&1; then
+              echo "Health check passed (attempt $i)"
+              break
+            fi
+            echo "Waiting... ($i/12)"
+            sleep 5
+          done
+
+      - name: Health check
+        run: |
+          RESPONSE=$(curl -sf http://localhost:9180/health)
+          echo "Health: $RESPONSE"
+          if [ -z "$RESPONSE" ]; then
+            echo "❌ Health check failed"
+            cd /opt/nex-ledger-src
+            docker compose logs --tail 20
+            exit 1
+          fi
+          echo "✅ Deploy successful"
+
+      - name: Report container status
+        if: always()
+        run: |
+          cd /opt/nex-ledger-src
+          docker compose ps
