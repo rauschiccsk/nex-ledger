@@ -22,7 +22,7 @@ async def lifespan(application: FastAPI) -> AsyncIterator[None]:
 
 app = FastAPI(
     title="NEX Ledger",
-    description="Invoice management system",
+    description="ICC Accounting and Invoicing System",
     version="0.1.0",
     lifespan=lifespan,
 )

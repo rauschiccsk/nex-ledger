@@ -1,8 +1,6 @@
 # NEX Ledger
 
-Accounting module for NEX ecosystem. Double-entry bookkeeping, Slovak legislation.
-
-**Status:** Initializing — clean slate after crash test audit.
+ICC Accounting and Invoicing System
 
 ## Ports
 
@@ -31,7 +29,7 @@ nex-ledger/
 ├── .github/
 │   └── workflows/
 │       └── backend-ci.yml   # CI/CD pipeline (lint, test, build)
-├── Dockerfile               # Multi-stage Docker build
+├── Dockerfile               # Docker build (python:3.12-slim)
 ├── docker-compose.yml       # PostgreSQL + API services
 ├── pyproject.toml           # Poetry dependencies
 ├── .env.example             # Environment template
@@ -121,7 +119,7 @@ poetry run ruff check . --fix
 
 | Variable | Default | Description |
 |---|---|---|
-| `DATABASE_URL` | `postgresql+pg8000://ledger:ledger@localhost:5432/nex_ledger` | PostgreSQL connection string (pg8000 driver) |
+| `DATABASE_URL` | `postgresql+pg8000://ledger:ledger@localhost:9165/nex_ledger` | PostgreSQL connection string (pg8000 driver) |
 | `PORT` | `9180` | Application port |
 | `ENV` | `development` | Environment (development/production) |
 | `CORS_ORIGINS` | `["*"]` | Allowed CORS origins |
@@ -135,7 +133,7 @@ curl http://localhost:9180/health
 
 ## Tech Stack
 
-- **Backend:** FastAPI 0.109+
+- **Backend:** FastAPI 0.115+
 - **Database:** PostgreSQL 16 (pg8000 driver)
 - **Python:** 3.12+
 - **ORM:** SQLAlchemy 2.0
