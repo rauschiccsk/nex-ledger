@@ -1,7 +1,7 @@
 """Tests for BusinessPartner model constraints and defaults."""
 
 import pytest
-from sqlalchemy.exc import IntegrityError, ProgrammingError
+from sqlalchemy.exc import IntegrityError
 
 from app.models import BusinessPartner
 
