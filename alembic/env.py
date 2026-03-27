@@ -15,6 +15,7 @@ from app.database import settings
 from app.models.account_type import AccountType  # noqa: F401
 from app.models.base import Base
 from app.models.currency import Currency  # noqa: F401
+from app.models.tax_rate import TaxRate  # noqa: F401
 
 # Alembic Config object
 config = context.config
