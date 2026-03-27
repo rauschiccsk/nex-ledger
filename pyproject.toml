@@ -1,25 +1,26 @@
 [tool.poetry]
 name = "nex-ledger"
 version = "0.1.0"
-description = "Financial ledger system for NEX Automat"
-authors = ["ICC s.r.o."]
+description = "ICC Accounting System"
+authors = ["ICC s.r.o. <dev@icc.sk>"]
 readme = "README.md"
-package-mode = false
+packages = [{include = "app"}]
 
 [tool.poetry.dependencies]
 python = "^3.12"
 fastapi = "^0.115.0"
 uvicorn = {extras = ["standard"], version = "^0.32.0"}
 sqlalchemy = "^2.0.0"
-pg8000 = "^1.31.0"
+pg8000 = "^1.31.2"
 pydantic = "^2.10.0"
 pydantic-settings = "^2.7.0"
+python-dotenv = "^1.0.1"
 
 [tool.poetry.group.dev.dependencies]
 pytest = "^8.3.0"
 pytest-cov = "^6.0.0"
+httpx = "^0.27.0"
 ruff = "^0.8.0"
-httpx = "^0.28.0"
 
 [build-system]
 requires = ["poetry-core"]

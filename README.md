@@ -1,34 +1,43 @@
 # NEX Ledger
 
-Financial ledger system for NEX Automat — multi-tenant accounting with double-entry bookkeeping.
+ICC Accounting System
 
 ## Tech Stack
 - Python 3.12
 - FastAPI 0.115+
-- SQLAlchemy 2.0 (sync, pg8000 driver)
+- SQLAlchemy 2.0 (sync)
+- pg8000 (PostgreSQL driver)
 - PostgreSQL 16
-- Docker
 
-## Development
+## Development Setup
 
-### Setup
+### Prerequisites
+- Python 3.12
+- Poetry 1.8.3
+- Docker + docker-compose
+
+### Install dependencies
 ```bash
 poetry install
-cp .env.example .env
-docker-compose up -d postgres
-poetry run pytest
 ```
 
-### Run
+### Run with Docker
 ```bash
-poetry run uvicorn app.main:app --reload --port 9180
+docker-compose up -d
 ```
 
-### Docker
+### Run tests
 ```bash
-docker-compose up --build
+poetry run pytest -v --cov
 ```
 
-## Port Assignment
-- **9180** — NEX Ledger API (ICC Port Registry)
-- **9181** — NEX Ledger Web (ICC Port Registry)
+### Lint
+```bash
+ruff check app/ tests/
+```
+
+## Environment Variables
+See `.env.example` for required configuration.
+
+## License
+Proprietary — ICC s.r.o.

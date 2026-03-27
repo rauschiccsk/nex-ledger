@@ -13,7 +13,7 @@ def client():
 
 
 def test_health_check(client):
-    """Test health endpoint returns 200 OK."""
+    """Test health check endpoint returns 200 OK."""
     response = client.get("/health")
     assert response.status_code == 200
     assert response.json() == {"status": "ok"}
