@@ -1,13 +1,10 @@
-version: '3.8'
-
 services:
   app:
     build: .
     ports:
       - "9180:9180"
-    environment:
-      - DATABASE_URL=postgresql+pg8000://ledger:ledger@postgres:5432/nex_ledger
-      - SECRET_KEY=dev-secret-key-change-in-production
+    env_file:
+      - .env
     depends_on:
       postgres:
         condition: service_healthy
