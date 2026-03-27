@@ -1,1 +1,1 @@
-"""NEX Ledger - Financial accounting system."""
+"""NEX Ledger — Financial ledger system for NEX Automat."""
