@@ -1,8 +1,8 @@
 [tool.poetry]
 name = "nex-ledger"
 version = "0.1.0"
-description = "ICC Accounting System"
-authors = ["ICC s.r.o. <dev@icc.sk>"]
+description = "Účtovný systém pre ICC s.r.o."
+authors = ["ICC s.r.o."]
 readme = "README.md"
 packages = [{include = "app"}]
 
@@ -11,15 +11,14 @@ python = "^3.12"
 fastapi = "^0.115.0"
 uvicorn = {extras = ["standard"], version = "^0.32.0"}
 sqlalchemy = "^2.0.0"
-pg8000 = "^1.31.2"
+pg8000 = "^1.31.0"
 pydantic = "^2.10.0"
 pydantic-settings = "^2.7.0"
-python-dotenv = "^1.0.1"
 
 [tool.poetry.group.dev.dependencies]
 pytest = "^8.3.0"
 pytest-cov = "^6.0.0"
-httpx = "^0.27.0"
+httpx = "^0.28.0"
 ruff = "^0.8.0"
 
 [build-system]
@@ -27,14 +26,11 @@ requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
 
 [tool.ruff]
-line-length = 100
+line-length = 120
 target-version = "py312"
-
-[tool.ruff.lint]
-select = ["E", "F", "I", "N", "W", "UP"]
-ignore = ["E501"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 python_files = "test_*.py"
+python_classes = "Test*"
 python_functions = "test_*"

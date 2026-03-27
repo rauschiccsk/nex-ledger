@@ -1,35 +1,35 @@
 services:
-  postgres:
+  app:
+    build: .
+    container_name: nex-ledger-app
+    ports:
+      - "9180:9180"
+    environment:
+      - DATABASE_URL=postgresql+pg8000://ledger:ledger_pass@db:5432/nex_ledger
+      - SECRET_KEY=dev-secret-key-change-in-production
+      - PORT=9180
+    depends_on:
+      db:
+        condition: service_healthy
+    restart: unless-stopped
+
+  db:
     image: postgres:16-alpine
     container_name: nex-ledger-db
     environment:
-      POSTGRES_USER: ledger
-      POSTGRES_PASSWORD: ledger_dev_pass
-      POSTGRES_DB: nex_ledger
-    ports:
-      - "5432:5432"
+      - POSTGRES_DB=nex_ledger
+      - POSTGRES_USER=ledger
+      - POSTGRES_PASSWORD=ledger_pass
     volumes:
       - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U ledger -d nex_ledger"]
       interval: 10s
       timeout: 5s
       retries: 5
-
-  app:
-    build: .
-    container_name: nex-ledger-app
-    depends_on:
-      postgres:
-        condition: service_healthy
-    environment:
-      DATABASE_URL: postgresql+pg8000://ledger:ledger_dev_pass@postgres:5432/nex_ledger
-      SECRET_KEY: dev_secret_key_change_in_production
-      PORT: 9180
-    ports:
-      - "9180:9180"
-    volumes:
-      - ./app:/app/app
+    restart: unless-stopped
 
 volumes:
   postgres_data:

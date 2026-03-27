@@ -1,1 +1,1 @@
-"""NEX Ledger test suite."""
+"""Test suite for NEX Ledger."""
