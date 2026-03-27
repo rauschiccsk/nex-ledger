@@ -34,7 +34,7 @@ class AccountType(Base, UUIDMixin, TimestampMixin):
 
     __tablename__ = "account_type"
 
-    code = Column(String(20), unique=True, nullable=False, index=True)
+    code = Column(String(20), nullable=False)
     name = Column(String(100), nullable=False)
     category = Column(
         Enum(
@@ -54,7 +54,7 @@ class AccountType(Base, UUIDMixin, TimestampMixin):
         ),
         nullable=False,
     )
-    is_system = Column(Boolean, default=False, nullable=False)
+    is_system = Column(Boolean, default=False, nullable=False, server_default="false")
 
     __table_args__ = (UniqueConstraint("code", name="uq_account_type_code"),)
 

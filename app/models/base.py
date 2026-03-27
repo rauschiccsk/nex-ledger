@@ -4,9 +4,7 @@ Provides declarative Base, UUIDMixin with PostgreSQL uuid_generate_v4(),
 and TimestampMixin with server-side timestamps.
 """
 
-from datetime import datetime
-
-from sqlalchemy import Column, DateTime, text
+from sqlalchemy import Column, DateTime, func, text
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import declarative_base
 
@@ -32,13 +30,13 @@ class TimestampMixin:
     """Created and updated timestamps with server-side defaults."""
 
     created_at = Column(
-        DateTime,
+        DateTime(timezone=True),
         nullable=False,
-        server_default=text("CURRENT_TIMESTAMP"),
+        server_default=func.now(),
     )
     updated_at = Column(
-        DateTime,
+        DateTime(timezone=True),
         nullable=False,
-        server_default=text("CURRENT_TIMESTAMP"),
-        onupdate=datetime.utcnow,
+        server_default=func.now(),
+        onupdate=func.now(),
     )

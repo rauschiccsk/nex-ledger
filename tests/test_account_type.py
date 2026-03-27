@@ -1,35 +1,9 @@
 """Tests for AccountType model."""
 
 import pytest
-from sqlalchemy import create_engine, text
 from sqlalchemy.exc import IntegrityError, ProgrammingError
-from sqlalchemy.orm import sessionmaker
 
-from app.database import settings
 from app.models.account_type import AccountCategory, AccountType, NormalBalance
-from app.models.base import Base
-
-
-@pytest.fixture(scope="function")
-def db_session():
-    """Create test database session with fresh schema."""
-    engine = create_engine(settings.database_url)
-
-    # Ensure uuid-ossp extension exists
-    with engine.connect() as conn:
-        conn.execute(text('CREATE EXTENSION IF NOT EXISTS "uuid-ossp"'))
-        conn.commit()
-
-    Base.metadata.drop_all(bind=engine)
-    Base.metadata.create_all(bind=engine)
-
-    session_factory = sessionmaker(bind=engine)
-    session = session_factory()
-
-    yield session
-
-    session.close()
-    Base.metadata.drop_all(bind=engine)
 
 
 def test_insert_account_types(db_session):
