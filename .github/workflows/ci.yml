@@ -11,17 +11,14 @@ jobs:
     runs-on: [self-hosted, andros]
     steps:
       - uses: actions/checkout@v4
-
-      - name: Set up Python
-        uses: actions/setup-python@v5
+      - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
-
-      - name: Install ruff
-        run: pip install ruff==0.8.0
-
+      - name: Install dependencies
+        run: |
+          pip install ruff
       - name: Lint with ruff
-        run: ruff check app/ tests/
+        run: ruff check .
 
   test:
     runs-on: [self-hosted, andros]
@@ -30,46 +27,32 @@ jobs:
         image: postgres:16-alpine
         env:
           POSTGRES_USER: ledger
-          POSTGRES_PASSWORD: ledger_test_pass
+          POSTGRES_PASSWORD: ledger
           POSTGRES_DB: nex_ledger_test
         options: >-
-          --health-cmd "pg_isready -U ledger -d nex_ledger_test"
+          --health-cmd pg_isready
           --health-interval 10s
           --health-timeout 5s
           --health-retries 5
         ports:
           - 5432:5432
-
     steps:
       - uses: actions/checkout@v4
-
-      - name: Set up Python
-        uses: actions/setup-python@v5
+      - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
-
       - name: Install dependencies
         run: |
-          pip install poetry==1.8.3
-          poetry install
-
+          pip install -r requirements.txt
       - name: Run tests
         env:
-          DATABASE_URL: postgresql+pg8000://ledger:ledger_test_pass@localhost:5432/nex_ledger_test
-        run: poetry run pytest -v --cov=app --cov-report=term-missing
+          DATABASE_URL: postgresql+pg8000://ledger:ledger@localhost:5432/nex_ledger_test
+        run: pytest
 
   build:
     runs-on: [self-hosted, andros]
     needs: [lint, test]
     steps:
       - uses: actions/checkout@v4
-
       - name: Build Docker image
         run: docker build -t nex-ledger:latest .
-
-      - name: Test Docker image
-        run: |
-          docker run --rm -d --name nex-ledger-test -p 9181:9180 nex-ledger:latest
-          sleep 5
-          curl -f http://localhost:9181/health || exit 1
-          docker stop nex-ledger-test

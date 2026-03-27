@@ -1,5 +1,5 @@
 .git
-.github
+.gitignore
 __pycache__
 *.pyc
 *.pyo
@@ -10,11 +10,8 @@ __pycache__
 venv/
 ENV/
 env/
-*.egg-info/
-.pytest_cache/
+.pytest_cache
 .coverage
 htmlcov/
-dist/
-build/
 *.log
 .DS_Store

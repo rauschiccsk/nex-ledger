@@ -1,8 +1,8 @@
 [tool.poetry]
 name = "nex-ledger"
 version = "0.1.0"
-description = "Účtovný systém pre ICC s.r.o."
-authors = ["ICC s.r.o."]
+description = "NEX Ledger — Účtovníctvo ICC s.r.o."
+authors = ["ICC s.r.o. <info@icc.sk>"]
 readme = "README.md"
 packages = [{include = "app"}]
 
@@ -18,19 +18,22 @@ pydantic-settings = "^2.7.0"
 [tool.poetry.group.dev.dependencies]
 pytest = "^8.3.0"
 pytest-cov = "^6.0.0"
-httpx = "^0.28.0"
 ruff = "^0.8.0"
+httpx = "^0.28.0"
 
 [build-system]
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
 
 [tool.ruff]
-line-length = 120
+line-length = 100
 target-version = "py312"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "N", "W", "UP"]
+ignore = ["E501"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
-python_files = "test_*.py"
-python_classes = "Test*"
-python_functions = "test_*"
+pythonpath = ["."]
+addopts = "-v --cov=app --cov-report=term-missing"

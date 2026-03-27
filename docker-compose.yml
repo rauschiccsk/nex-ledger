@@ -1,35 +1,40 @@
+version: '3.8'
+
 services:
   app:
     build: .
-    container_name: nex-ledger-app
     ports:
       - "9180:9180"
     environment:
-      - DATABASE_URL=postgresql+pg8000://ledger:ledger_pass@db:5432/nex_ledger
+      - DATABASE_URL=postgresql+pg8000://ledger:ledger@postgres:5432/nex_ledger
       - SECRET_KEY=dev-secret-key-change-in-production
-      - PORT=9180
     depends_on:
-      db:
+      postgres:
         condition: service_healthy
-    restart: unless-stopped
+    networks:
+      - ledger-network
 
-  db:
+  postgres:
     image: postgres:16-alpine
-    container_name: nex-ledger-db
     environment:
-      - POSTGRES_DB=nex_ledger
       - POSTGRES_USER=ledger
-      - POSTGRES_PASSWORD=ledger_pass
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
+      - POSTGRES_PASSWORD=ledger
+      - POSTGRES_DB=nex_ledger
     ports:
       - "5432:5432"
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ledger -d nex_ledger"]
+      test: ["CMD-SHELL", "pg_isready -U ledger"]
       interval: 10s
       timeout: 5s
       retries: 5
-    restart: unless-stopped
+    networks:
+      - ledger-network
+
+networks:
+  ledger-network:
+    driver: bridge
 
 volumes:
-  postgres_data:
+  postgres-data:

@@ -1,2 +1,0 @@
-"""SQLAlchemy models package"""
-# Models will be imported here as they are created
