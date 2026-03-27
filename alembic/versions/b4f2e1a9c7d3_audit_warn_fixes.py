@@ -22,7 +22,7 @@ def upgrade() -> None:
     """Upgrade schema."""
     # WARN 3: Drop duplicate unique index on account_type.code
     # (uq_account_type_code UniqueConstraint remains as the canonical constraint)
-    op.drop_index('ix_account_type_code', table_name='account_type')
+    op.execute("DROP INDEX IF EXISTS ix_account_type_code")
 
     # WARN 5: Add server_default to is_system column
     op.alter_column(
