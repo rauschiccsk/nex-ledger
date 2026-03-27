@@ -9,7 +9,7 @@ from app.config import settings
 from app.models.base import Base
 
 # Import all models here for autogenerate
-# from app.models.user import User  # Example — add when models exist
+from app.models.currency import Currency  # noqa: F401
 
 config = context.config
 

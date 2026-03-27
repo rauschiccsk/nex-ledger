@@ -3,8 +3,8 @@
 import os
 
 import pytest
-from sqlalchemy import create_engine, text
-from sqlalchemy.orm import sessionmaker
+from sqlalchemy import create_engine, event, text
+from sqlalchemy.orm import Session, sessionmaker
 
 from app.config import settings
 from app.models.base import Base
@@ -62,10 +62,29 @@ def setup_test_db():
 
 @pytest.fixture()
 def db_session():
-    """Provide a transactional test session that rolls back after each test."""
-    session = TestSessionLocal()
+    """Provide a transactional test session that rolls back after each test.
+
+    Uses nested transaction (SAVEPOINT) pattern so that session.commit()
+    inside tests does not actually persist data — the outer connection
+    transaction is rolled back at teardown.
+    """
+    connection = test_engine.connect()
+    transaction = connection.begin()
+    session = Session(bind=connection)
+
+    # When session.commit() is called, restart a nested SAVEPOINT
+    # instead of committing the outer transaction.
+    nested = connection.begin_nested()
+
+    @event.listens_for(session, "after_transaction_end")
+    def restart_savepoint(sess, trans):
+        nonlocal nested
+        if trans.nested and not trans._parent.nested:
+            nested = connection.begin_nested()
+
     try:
         yield session
     finally:
-        session.rollback()
         session.close()
+        transaction.rollback()
+        connection.close()
