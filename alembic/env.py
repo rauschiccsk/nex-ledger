@@ -14,6 +14,9 @@ from alembic import context
 from app.database import settings
 from app.models.base import Base
 
+# Import all models for autogenerate support
+from app.models.currency import Currency  # noqa: F401
+
 # Future models will be imported here:
 # from app.models.company import Company
 # from app.models.invoice import Invoice
