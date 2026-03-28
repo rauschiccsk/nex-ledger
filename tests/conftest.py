@@ -1,196 +1,41 @@
-"""Test configuration — isolated test database (NEVER touches production)."""
+"""Test configuration and shared fixtures."""
 
 import os
 
 import pytest
-from sqlalchemy import create_engine, event, text
-from sqlalchemy.orm import Session, sessionmaker
+from sqlalchemy import create_engine, text
+from sqlalchemy.orm import sessionmaker
 
-from app.config import settings
-
-# Import all models so Base.metadata knows about them
-from app.models.account import Account
-from app.models.account_type import AccountCategory, AccountType, NormalBalance
 from app.models.base import Base
-from app.models.business_partner import BusinessPartner
-from app.models.currency import Currency
-from app.models.document import Document  # noqa: F401
-from app.models.import_batch import ImportBatch  # noqa: F401
-from app.models.journal_line import JournalLine  # noqa: F401
-from app.models.tax_rate import TaxRate  # noqa: F401
 
-
-def get_test_database_url() -> str:
-    """Get TEST_DATABASE_URL from env or derive from settings."""
-    return os.environ.get(
-        "TEST_DATABASE_URL",
-        settings.test_database_url,
-    )
-
-
-def _create_test_db_if_not_exists() -> None:
-    """Create test database if it doesn't exist (connects to 'postgres' DB)."""
-    test_url = get_test_database_url()
-    # Parse the DB name from URL — last segment after '/'
-    db_name = test_url.rsplit("/", 1)[-1]
-    # Connect to default 'postgres' DB to create test DB
-    base_url = test_url.rsplit("/", 1)[0] + "/postgres"
-    eng = create_engine(base_url, isolation_level="AUTOCOMMIT")
-    with eng.connect() as conn:
-        result = conn.execute(
-            text("SELECT 1 FROM pg_database WHERE datname = :db"),
-            {"db": db_name},
-        )
-        if not result.scalar():
-            conn.execute(text(f'CREATE DATABASE "{db_name}"'))
-    eng.dispose()
-
-
-# Create test DB if needed at import time
-_create_test_db_if_not_exists()
-
-# Test engine — ALWAYS uses TEST_DATABASE_URL
-test_engine = create_engine(
-    get_test_database_url(),
-    pool_pre_ping=True,
-    echo=False,
+TEST_DB_URL = os.environ.get(
+    "TEST_DATABASE_URL",
+    "postgresql+pg8000://ledger:ledger@localhost:9181/nex_ledger_test",
 )
 
-TestSessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=test_engine)
+engine = create_engine(TEST_DB_URL)
+TestingSessionLocal = sessionmaker(bind=engine)
 
 
-@pytest.fixture(scope="session", autouse=True)
-def setup_test_db():
-    """Create all tables on test DB, enable uuid-ossp and ENUM types, then drop after tests."""
-    with test_engine.connect() as conn:
-        conn.execute(text('CREATE EXTENSION IF NOT EXISTS "uuid-ossp"'))
-        # Create ENUM types used by models (create_type=False in model)
-        conn.execute(
-            text(
-                "DO $$ BEGIN"
-                "  CREATE TYPE account_category"
-                "    AS ENUM ('asset','liability','equity','revenue','expense');"
-                "  EXCEPTION WHEN duplicate_object THEN NULL;"
-                " END $$"
-            )
-        )
-        conn.execute(
-            text(
-                "DO $$ BEGIN"
-                "  CREATE TYPE normal_balance AS ENUM ('debit','credit');"
-                "  EXCEPTION WHEN duplicate_object THEN NULL;"
-                " END $$"
-            )
-        )
-        conn.execute(
-            text(
-                "DO $$ BEGIN"
-                "  CREATE TYPE batch_status_enum"
-                "    AS ENUM ('pending','processing','completed','failed');"
-                "  EXCEPTION WHEN duplicate_object THEN NULL;"
-                " END $$"
-            )
-        )
-        conn.execute(
-            text(
-                "DO $$ BEGIN"
-                "  CREATE TYPE entry_status_enum"
-                "    AS ENUM ('draft','posted','cancelled');"
-                "  EXCEPTION WHEN duplicate_object THEN NULL;"
-                " END $$"
-            )
-        )
-        conn.execute(
-            text(
-                "DO $$ BEGIN"
-                "  CREATE TYPE document_type_enum"
-                "    AS ENUM ('invoice','receipt','payment','other');"
-                "  EXCEPTION WHEN duplicate_object THEN NULL;"
-                " END $$"
-            )
-        )
-        conn.commit()
-    Base.metadata.create_all(bind=test_engine)
-    yield
-    Base.metadata.drop_all(bind=test_engine)
-    with test_engine.connect() as conn:
-        conn.execute(text("DROP TYPE IF EXISTS document_type_enum"))
-        conn.execute(text("DROP TYPE IF EXISTS entry_status_enum"))
-        conn.execute(text("DROP TYPE IF EXISTS batch_status_enum"))
-        conn.execute(text("DROP TYPE IF EXISTS normal_balance"))
-        conn.execute(text("DROP TYPE IF EXISTS account_category"))
-        conn.commit()
-
-
-@pytest.fixture()
+@pytest.fixture(autouse=True)
 def db_session():
-    """Provide a transactional test session that rolls back after each test.
-
-    Uses nested transaction (SAVEPOINT) pattern so that session.commit()
-    inside tests does not actually persist data — the outer connection
-    transaction is rolled back at teardown.
-    """
-    connection = test_engine.connect()
+    """Provide a transactional database session for tests (SAVEPOINT pattern)."""
+    Base.metadata.create_all(bind=engine)
+    connection = engine.connect()
     transaction = connection.begin()
-    session = Session(bind=connection)
-
-    # When session.commit() is called, restart a nested SAVEPOINT
-    # instead of committing the outer transaction.
+    session = TestingSessionLocal(bind=connection)
     nested = connection.begin_nested()
 
-    @event.listens_for(session, "after_transaction_end")
-    def restart_savepoint(sess, trans):
-        nonlocal nested
-        if trans.nested and not trans._parent.nested:
-            nested = connection.begin_nested()
+    yield session
 
-    try:
-        yield session
-    finally:
-        session.close()
-        transaction.rollback()
-        connection.close()
+    session.close()
+    if nested.is_active:
+        nested.rollback()
+    transaction.rollback()
+    connection.close()
 
-
-@pytest.fixture()
-def sample_business_partner(db_session):
-    """Create a sample business partner for document tests."""
-    partner = BusinessPartner(
-        code="BP-001",
-        name="Test Customer Ltd.",
-        tax_id="SK1234567890",
-        is_customer=True,
-        is_active=True,
-    )
-    db_session.add(partner)
-    db_session.commit()
-    return partner
-
-
-@pytest.fixture()
-def sample_account(db_session):
-    """Create sample account (needed for journal entry tests)."""
-    account_type = AccountType(
-        code="ASSET",
-        name="Assets",
-        category=AccountCategory.ASSET,
-        normal_balance=NormalBalance.DEBIT,
-    )
-    currency = Currency(
-        code="EUR",
-        name="Euro",
-        symbol="€",
-        decimal_places=2,
-    )
-    db_session.add_all([account_type, currency])
-    db_session.commit()
-
-    account = Account(
-        code="1000",
-        name="Cash",
-        account_type_id=account_type.id,
-        currency_id=currency.id,
-    )
-    db_session.add(account)
-    db_session.commit()
-    return account
+    # Clean up tables
+    with engine.connect() as conn:
+        conn.execute(text("DROP SCHEMA public CASCADE"))
+        conn.execute(text("CREATE SCHEMA public"))
+        conn.commit()

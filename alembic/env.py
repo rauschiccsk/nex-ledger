@@ -6,18 +6,7 @@ from sqlalchemy import engine_from_config, pool
 
 from alembic import context
 from app.config import settings
-from app.models.account import Account  # noqa: F401
-from app.models.account_type import AccountType  # noqa: F401
 from app.models.base import Base
-from app.models.business_partner import BusinessPartner  # noqa: F401
-
-# Import all models here for autogenerate
-from app.models.currency import Currency  # noqa: F401
-from app.models.document import Document  # noqa: F401
-from app.models.import_batch import ImportBatch  # noqa: F401
-from app.models.journal_entry import JournalEntry  # noqa: F401
-from app.models.journal_line import JournalLine  # noqa: F401
-from app.models.tax_rate import TaxRate  # noqa: F401
 
 config = context.config
 
