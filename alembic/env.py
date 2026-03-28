@@ -11,6 +11,7 @@ from app.models.base import Base
 
 # Import all models here for autogenerate
 from app.models.currency import Currency  # noqa: F401
+from app.models.tax_rate import TaxRate  # noqa: F401
 
 config = context.config
 

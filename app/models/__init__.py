@@ -2,5 +2,6 @@
 
 from app.models.account_type import AccountCategory, AccountType, NormalBalance
 from app.models.currency import Currency
+from app.models.tax_rate import TaxRate
 
-__all__ = ["Currency", "AccountType", "AccountCategory", "NormalBalance"]
+__all__ = ["Currency", "AccountType", "AccountCategory", "NormalBalance", "TaxRate"]
