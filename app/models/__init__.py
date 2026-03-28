@@ -10,6 +10,7 @@ from app.models.currency import Currency
 from app.models.import_batch import ImportBatch
 from app.models.journal_entry import JournalEntry
 from app.models.journal_entry_line import JournalEntryLine
+from app.models.opening_balance import OpeningBalance
 from app.models.tax_rate import TaxRate
 
 __all__ = [
@@ -23,5 +24,6 @@ __all__ = [
     "ImportBatch",
     "JournalEntry",
     "JournalEntryLine",
+    "OpeningBalance",
     "TaxRate",
 ]

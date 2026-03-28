@@ -16,6 +16,7 @@ from app.models.currency import Currency  # noqa: F401 — autogenerate detectio
 from app.models.import_batch import ImportBatch  # noqa: F401 — autogenerate detection
 from app.models.journal_entry import JournalEntry  # noqa: F401 — autogenerate detection
 from app.models.journal_entry_line import JournalEntryLine  # noqa: F401 — autogenerate detection
+from app.models.opening_balance import OpeningBalance  # noqa: F401 — autogenerate detection
 from app.models.tax_rate import TaxRate  # noqa: F401 — autogenerate detection
 
 config = context.config
