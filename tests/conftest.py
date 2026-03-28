@@ -51,7 +51,7 @@ def db_session(engine) -> Session:
     connection = engine.connect()
     transaction = connection.begin()
 
-    session = sessionmaker(bind=connection)()
+    session = sessionmaker(bind=connection, join_transaction_block=True)()
 
     yield session
 
