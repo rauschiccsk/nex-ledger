@@ -1,41 +1,60 @@
-"""Test configuration and shared fixtures."""
+"""
+Pytest fixtures for database testing.
+
+MANDATORY: Uses TEST_DATABASE_URL, NEVER production DATABASE_URL.
+"""
 
 import os
 
 import pytest
 from sqlalchemy import create_engine, text
-from sqlalchemy.orm import sessionmaker
+from sqlalchemy.orm import Session, sessionmaker
 
+from app.config import settings
 from app.models.base import Base
 
+# Test database URL — NEVER use production DATABASE_URL
 TEST_DB_URL = os.environ.get(
     "TEST_DATABASE_URL",
-    "postgresql+pg8000://ledger:ledger@localhost:9181/nex_ledger_test",
+    settings.TEST_DATABASE_URL,
 )
 
-engine = create_engine(TEST_DB_URL)
-TestingSessionLocal = sessionmaker(bind=engine)
+
+@pytest.fixture(scope="session")
+def engine():
+    """Create test database engine (session-scoped)."""
+    test_engine = create_engine(TEST_DB_URL, pool_pre_ping=True)
+
+    # Ensure uuid-ossp extension exists for UUIDMixin
+    with test_engine.connect() as conn:
+        conn.execute(text('CREATE EXTENSION IF NOT EXISTS "uuid-ossp"'))
+        conn.commit()
+
+    # Create all tables on test DB
+    Base.metadata.create_all(bind=test_engine)
+
+    yield test_engine
+
+    # Drop all tables after entire test session
+    Base.metadata.drop_all(bind=test_engine)
+    test_engine.dispose()
 
 
-@pytest.fixture(autouse=True)
-def db_session():
-    """Provide a transactional database session for tests (SAVEPOINT pattern)."""
-    Base.metadata.create_all(bind=engine)
+@pytest.fixture(scope="function")
+def db_session(engine) -> Session:
+    """
+    Transactional database session for each test.
+
+    Each test gets a session bound to a transaction that is
+    rolled back at the end — no data persists between tests.
+    """
     connection = engine.connect()
     transaction = connection.begin()
-    session = TestingSessionLocal(bind=connection)
-    nested = connection.begin_nested()
+
+    session = sessionmaker(bind=connection)()
 
     yield session
 
     session.close()
-    if nested.is_active:
-        nested.rollback()
     transaction.rollback()
     connection.close()
-
-    # Clean up tables
-    with engine.connect() as conn:
-        conn.execute(text("DROP SCHEMA public CASCADE"))
-        conn.execute(text("CREATE SCHEMA public"))
-        conn.commit()
