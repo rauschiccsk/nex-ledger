@@ -8,10 +8,11 @@ import os
 
 import pytest
 from sqlalchemy import create_engine, text
-from sqlalchemy.orm import Session, sessionmaker
+from sqlalchemy.orm import Session
 
 from app.config import settings
 from app.models.base import Base
+from app.models.currency import Currency  # noqa: F401 — Base.metadata awareness
 
 # Test database URL — NEVER use production DATABASE_URL
 TEST_DB_URL = os.environ.get(
@@ -51,7 +52,7 @@ def db_session(engine) -> Session:
     connection = engine.connect()
     transaction = connection.begin()
 
-    session = sessionmaker(bind=connection, join_transaction_block=True)()
+    session = Session(bind=connection, join_transaction_mode="create_savepoint")
 
     yield session
 

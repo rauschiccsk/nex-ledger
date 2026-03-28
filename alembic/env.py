@@ -7,6 +7,7 @@ from sqlalchemy import engine_from_config, pool
 from alembic import context
 from app.config import settings
 from app.models.base import Base
+from app.models.currency import Currency  # noqa: F401 — autogenerate detection
 
 config = context.config
 
