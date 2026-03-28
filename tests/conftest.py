@@ -22,6 +22,7 @@ from app.models.import_batch import ImportBatch  # noqa: F401 — Base.metadata 
 from app.models.journal_entry import JournalEntry  # noqa: F401 — Base.metadata awareness
 from app.models.journal_entry_line import JournalEntryLine  # noqa: F401 — Base.metadata awareness
 from app.models.opening_balance import OpeningBalance  # noqa: F401 — Base.metadata awareness
+from app.models.source_document import SourceDocument  # noqa: F401 — Base.metadata awareness
 from app.models.tax_rate import TaxRate  # noqa: F401 — Base.metadata awareness
 
 # Test database URL — NEVER use production DATABASE_URL
