@@ -15,6 +15,7 @@ from app.models.base import Base
 from app.models.business_partner import BusinessPartner  # noqa: F401
 from app.models.currency import Currency  # noqa: F401
 from app.models.import_batch import ImportBatch  # noqa: F401
+from app.models.journal_entry import JournalEntry  # noqa: F401
 from app.models.tax_rate import TaxRate  # noqa: F401
 
 
@@ -89,11 +90,21 @@ def setup_test_db():
                 " END $$"
             )
         )
+        conn.execute(
+            text(
+                "DO $$ BEGIN"
+                "  CREATE TYPE entry_status_enum"
+                "    AS ENUM ('draft','posted','cancelled');"
+                "  EXCEPTION WHEN duplicate_object THEN NULL;"
+                " END $$"
+            )
+        )
         conn.commit()
     Base.metadata.create_all(bind=test_engine)
     yield
     Base.metadata.drop_all(bind=test_engine)
     with test_engine.connect() as conn:
+        conn.execute(text("DROP TYPE IF EXISTS entry_status_enum"))
         conn.execute(text("DROP TYPE IF EXISTS batch_status_enum"))
         conn.execute(text("DROP TYPE IF EXISTS normal_balance"))
         conn.execute(text("DROP TYPE IF EXISTS account_category"))

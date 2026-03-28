@@ -14,6 +14,7 @@ from app.models.business_partner import BusinessPartner  # noqa: F401
 # Import all models here for autogenerate
 from app.models.currency import Currency  # noqa: F401
 from app.models.import_batch import ImportBatch  # noqa: F401
+from app.models.journal_entry import JournalEntry  # noqa: F401
 from app.models.tax_rate import TaxRate  # noqa: F401
 
 config = context.config

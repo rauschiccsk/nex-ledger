@@ -2,12 +2,16 @@
 
 import enum
 from datetime import datetime
+from typing import TYPE_CHECKING
 
 from sqlalchemy import DateTime, Integer, String, Text, UniqueConstraint
 from sqlalchemy.dialects.postgresql import ENUM as PG_ENUM
-from sqlalchemy.orm import Mapped, mapped_column
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.models.base import Base, TimestampMixin, UUIDMixin
+
+if TYPE_CHECKING:
+    from app.models.journal_entry import JournalEntry
 
 
 class BatchStatus(enum.StrEnum):
@@ -46,6 +50,12 @@ class ImportBatch(Base, UUIDMixin, TimestampMixin):
         Integer, nullable=False, server_default="0"
     )
     error_message: Mapped[str | None] = mapped_column(Text, nullable=True)
+
+    # Relationships
+    journal_entries: Mapped[list["JournalEntry"]] = relationship(
+        "JournalEntry",
+        back_populates="import_batch",
+    )
 
     __table_args__ = (
         UniqueConstraint("batch_number", name="uq_import_batch_batch_number"),
