@@ -11,6 +11,7 @@ from sqlalchemy import create_engine, text
 from sqlalchemy.orm import Session
 
 from app.config import settings
+from app.models.account_type import AccountType  # noqa: F401 — Base.metadata awareness
 from app.models.base import Base
 from app.models.currency import Currency  # noqa: F401 — Base.metadata awareness
 
