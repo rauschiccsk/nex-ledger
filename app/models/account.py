@@ -53,6 +53,10 @@ class Account(Base, UUIDMixin, TimestampMixin):
         back_populates="parent_account",
         cascade="all, delete-orphan",
     )
+    journal_lines: Mapped[list["JournalLine"]] = relationship(  # noqa: F821
+        "JournalLine",
+        back_populates="account",
+    )
 
     __table_args__ = (UniqueConstraint("code", name="uq_account_code"),)
 

@@ -13,6 +13,7 @@ from app.models.base import Base, TimestampMixin, UUIDMixin
 
 if TYPE_CHECKING:
     from app.models.import_batch import ImportBatch
+    from app.models.journal_line import JournalLine
 
 
 class EntryStatus(enum.StrEnum):
@@ -58,6 +59,11 @@ class JournalEntry(Base, UUIDMixin, TimestampMixin):
     import_batch: Mapped[Optional["ImportBatch"]] = relationship(
         "ImportBatch",
         back_populates="journal_entries",
+    )
+    lines: Mapped[list["JournalLine"]] = relationship(
+        "JournalLine",
+        back_populates="journal_entry",
+        cascade="all, delete-orphan",
     )
 
     __table_args__ = (

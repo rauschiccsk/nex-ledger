@@ -2,11 +2,15 @@
 
 from datetime import date
 from decimal import Decimal
+from typing import TYPE_CHECKING
 
 from sqlalchemy import Boolean, CheckConstraint, Date, Numeric, String, UniqueConstraint
-from sqlalchemy.orm import Mapped, mapped_column
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.models.base import Base, TimestampMixin, UUIDMixin
+
+if TYPE_CHECKING:
+    from app.models.journal_line import JournalLine
 
 
 class TaxRate(Base, UUIDMixin, TimestampMixin):
@@ -21,6 +25,12 @@ class TaxRate(Base, UUIDMixin, TimestampMixin):
     valid_to: Mapped[date | None] = mapped_column(Date, nullable=True)
     is_active: Mapped[bool] = mapped_column(
         Boolean, nullable=False, server_default="true"
+    )
+
+    # Relationships
+    journal_lines: Mapped[list["JournalLine"]] = relationship(
+        "JournalLine",
+        back_populates="tax_rate",
     )
 
     __table_args__ = (

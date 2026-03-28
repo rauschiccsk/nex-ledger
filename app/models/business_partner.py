@@ -1,9 +1,14 @@
 """BusinessPartner model — customer/supplier business partner entity."""
 
+from typing import TYPE_CHECKING
+
 from sqlalchemy import Boolean, String, UniqueConstraint
-from sqlalchemy.orm import Mapped, mapped_column
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.models.base import Base, TimestampMixin, UUIDMixin
+
+if TYPE_CHECKING:
+    from app.models.journal_line import JournalLine
 
 
 class BusinessPartner(Base, UUIDMixin, TimestampMixin):
@@ -29,6 +34,12 @@ class BusinessPartner(Base, UUIDMixin, TimestampMixin):
     )
     is_active: Mapped[bool] = mapped_column(
         Boolean, nullable=False, server_default="true"
+    )
+
+    # Relationships
+    journal_lines: Mapped[list["JournalLine"]] = relationship(
+        "JournalLine",
+        back_populates="business_partner",
     )
 
     __table_args__ = (
