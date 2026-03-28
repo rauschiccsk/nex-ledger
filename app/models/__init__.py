@@ -1,5 +1,6 @@
 """Models package."""
 
+from app.models.account import Account
 from app.models.account_type import AccountType
 from app.models.accounting_period import AccountingPeriod
 from app.models.base import Base
@@ -10,6 +11,7 @@ from app.models.import_batch import ImportBatch
 from app.models.tax_rate import TaxRate
 
 __all__ = [
+    "Account",
     "AccountType",
     "AccountingPeriod",
     "Base",
