@@ -1,0 +1,15 @@
+# Development overrides — automatically loaded by docker compose
+services:
+  app:
+    ports:
+      - "9180:9180"  # ICC Port Registry — Backend API
+    volumes:
+      - .:/app  # Hot reload — mount source code
+    environment:
+      DEBUG: "true"
+      LOG_LEVEL: DEBUG
+    command: ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "9180", "--reload"]
+
+  db:
+    ports:
+      - "9181:5432"  # ICC Port Registry — PostgreSQL (external:internal)
