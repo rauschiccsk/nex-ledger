@@ -8,6 +8,7 @@ from alembic import context
 from app.config import settings
 from app.models.account_type import AccountType  # noqa: F401
 from app.models.base import Base
+from app.models.business_partner import BusinessPartner  # noqa: F401
 
 # Import all models here for autogenerate
 from app.models.currency import Currency  # noqa: F401
