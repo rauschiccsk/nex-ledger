@@ -4,7 +4,6 @@ Journal Entry business logic service.
 Handles double-entry validation and balance calculations.
 """
 from decimal import Decimal
-from typing import Tuple
 
 from sqlalchemy.orm import Session
 
@@ -52,7 +51,7 @@ class JournalEntryService:
     @staticmethod
     def get_entry_balance(
         session: Session, entry_id: int
-    ) -> Tuple[Decimal, Decimal]:
+    ) -> tuple[Decimal, Decimal]:
         """
         Calculate total debit and credit for journal entry.
 
