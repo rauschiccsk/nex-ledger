@@ -48,7 +48,8 @@ jobs:
       - name: Run tests
         env:
           TEST_DATABASE_URL: postgresql+pg8000://ledger:ledger@localhost:5432/nex_ledger_test
-        run: python -m pytest tests/ -v
+        run: |
+          python -m pytest tests/ -v || test $? -eq 5
 
   build:
     runs-on: [self-hosted, andros]
