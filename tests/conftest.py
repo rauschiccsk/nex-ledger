@@ -7,7 +7,11 @@ from sqlalchemy import create_engine, event, text
 from sqlalchemy.orm import Session, sessionmaker
 
 from app.config import settings
+
+# Import all models so Base.metadata knows about them
+from app.models.account_type import AccountType  # noqa: F401
 from app.models.base import Base
+from app.models.currency import Currency  # noqa: F401
 
 
 def get_test_database_url() -> str:
@@ -51,13 +55,35 @@ TestSessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=test_eng
 
 @pytest.fixture(scope="session", autouse=True)
 def setup_test_db():
-    """Create all tables on test DB, enable uuid-ossp, then drop after tests."""
+    """Create all tables on test DB, enable uuid-ossp and ENUM types, then drop after tests."""
     with test_engine.connect() as conn:
         conn.execute(text('CREATE EXTENSION IF NOT EXISTS "uuid-ossp"'))
+        # Create ENUM types used by models (create_type=False in model)
+        conn.execute(
+            text(
+                "DO $$ BEGIN"
+                "  CREATE TYPE account_category"
+                "    AS ENUM ('asset','liability','equity','revenue','expense');"
+                "  EXCEPTION WHEN duplicate_object THEN NULL;"
+                " END $$"
+            )
+        )
+        conn.execute(
+            text(
+                "DO $$ BEGIN"
+                "  CREATE TYPE normal_balance AS ENUM ('debit','credit');"
+                "  EXCEPTION WHEN duplicate_object THEN NULL;"
+                " END $$"
+            )
+        )
         conn.commit()
     Base.metadata.create_all(bind=test_engine)
     yield
     Base.metadata.drop_all(bind=test_engine)
+    with test_engine.connect() as conn:
+        conn.execute(text("DROP TYPE IF EXISTS normal_balance"))
+        conn.execute(text("DROP TYPE IF EXISTS account_category"))
+        conn.commit()
 
 
 @pytest.fixture()

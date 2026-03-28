@@ -6,6 +6,7 @@ from sqlalchemy import engine_from_config, pool
 
 from alembic import context
 from app.config import settings
+from app.models.account_type import AccountType  # noqa: F401
 from app.models.base import Base
 
 # Import all models here for autogenerate
