@@ -9,6 +9,7 @@ from app.config import settings
 from app.models.account_type import AccountType  # noqa: F401 — autogenerate detection
 from app.models.base import Base
 from app.models.currency import Currency  # noqa: F401 — autogenerate detection
+from app.models.tax_rate import TaxRate  # noqa: F401 — autogenerate detection
 
 config = context.config
 
