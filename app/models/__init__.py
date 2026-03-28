@@ -3,8 +3,17 @@
 from app.models.account_type import AccountType
 from app.models.base import Base
 from app.models.business_partner import BusinessPartner
+from app.models.chart_of_accounts import ChartOfAccounts
 from app.models.currency import Currency
 from app.models.import_batch import ImportBatch
 from app.models.tax_rate import TaxRate
 
-__all__ = ["AccountType", "Base", "BusinessPartner", "Currency", "ImportBatch", "TaxRate"]
+__all__ = [
+    "AccountType",
+    "Base",
+    "BusinessPartner",
+    "ChartOfAccounts",
+    "Currency",
+    "ImportBatch",
+    "TaxRate",
+]
