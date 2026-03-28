@@ -20,6 +20,7 @@ from app.models.chart_of_accounts import ChartOfAccounts  # noqa: F401 — Base.
 from app.models.currency import Currency  # noqa: F401 — Base.metadata awareness
 from app.models.import_batch import ImportBatch  # noqa: F401 — Base.metadata awareness
 from app.models.journal_entry import JournalEntry  # noqa: F401 — Base.metadata awareness
+from app.models.journal_entry_line import JournalEntryLine  # noqa: F401 — Base.metadata awareness
 from app.models.tax_rate import TaxRate  # noqa: F401 — Base.metadata awareness
 
 # Test database URL — NEVER use production DATABASE_URL

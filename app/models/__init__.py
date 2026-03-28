@@ -9,6 +9,7 @@ from app.models.chart_of_accounts import ChartOfAccounts
 from app.models.currency import Currency
 from app.models.import_batch import ImportBatch
 from app.models.journal_entry import JournalEntry
+from app.models.journal_entry_line import JournalEntryLine
 from app.models.tax_rate import TaxRate
 
 __all__ = [
@@ -21,5 +22,6 @@ __all__ = [
     "Currency",
     "ImportBatch",
     "JournalEntry",
+    "JournalEntryLine",
     "TaxRate",
 ]
