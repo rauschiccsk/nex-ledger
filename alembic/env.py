@@ -13,6 +13,7 @@ from app.models.base import Base
 from app.models.business_partner import BusinessPartner  # noqa: F401 — autogenerate detection
 from app.models.chart_of_accounts import ChartOfAccounts  # noqa: F401 — autogenerate detection
 from app.models.currency import Currency  # noqa: F401 — autogenerate detection
+from app.models.document_entry_link import DocumentEntryLink  # noqa: F401 — autogenerate detection
 from app.models.import_batch import ImportBatch  # noqa: F401 — autogenerate detection
 from app.models.journal_entry import JournalEntry  # noqa: F401 — autogenerate detection
 from app.models.journal_entry_line import JournalEntryLine  # noqa: F401 — autogenerate detection

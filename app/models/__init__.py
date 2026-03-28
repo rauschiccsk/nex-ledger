@@ -7,6 +7,7 @@ from app.models.base import Base
 from app.models.business_partner import BusinessPartner
 from app.models.chart_of_accounts import ChartOfAccounts
 from app.models.currency import Currency
+from app.models.document_entry_link import DocumentEntryLink
 from app.models.import_batch import ImportBatch
 from app.models.journal_entry import JournalEntry
 from app.models.journal_entry_line import JournalEntryLine
@@ -22,6 +23,7 @@ __all__ = [
     "BusinessPartner",
     "ChartOfAccounts",
     "Currency",
+    "DocumentEntryLink",
     "ImportBatch",
     "JournalEntry",
     "JournalEntryLine",
