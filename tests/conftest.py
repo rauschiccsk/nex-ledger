@@ -9,13 +9,13 @@ from sqlalchemy.orm import Session, sessionmaker
 from app.config import settings
 
 # Import all models so Base.metadata knows about them
-from app.models.account import Account  # noqa: F401
-from app.models.account_type import AccountType  # noqa: F401
+from app.models.account import Account
+from app.models.account_type import AccountCategory, AccountType, NormalBalance
 from app.models.base import Base
-from app.models.business_partner import BusinessPartner  # noqa: F401
-from app.models.currency import Currency  # noqa: F401
+from app.models.business_partner import BusinessPartner
+from app.models.currency import Currency
+from app.models.document import Document  # noqa: F401
 from app.models.import_batch import ImportBatch  # noqa: F401
-from app.models.journal_entry import JournalEntry  # noqa: F401
 from app.models.journal_line import JournalLine  # noqa: F401
 from app.models.tax_rate import TaxRate  # noqa: F401
 
@@ -100,11 +100,21 @@ def setup_test_db():
                 " END $$"
             )
         )
+        conn.execute(
+            text(
+                "DO $$ BEGIN"
+                "  CREATE TYPE document_type_enum"
+                "    AS ENUM ('invoice','receipt','payment','other');"
+                "  EXCEPTION WHEN duplicate_object THEN NULL;"
+                " END $$"
+            )
+        )
         conn.commit()
     Base.metadata.create_all(bind=test_engine)
     yield
     Base.metadata.drop_all(bind=test_engine)
     with test_engine.connect() as conn:
+        conn.execute(text("DROP TYPE IF EXISTS document_type_enum"))
         conn.execute(text("DROP TYPE IF EXISTS entry_status_enum"))
         conn.execute(text("DROP TYPE IF EXISTS batch_status_enum"))
         conn.execute(text("DROP TYPE IF EXISTS normal_balance"))
@@ -140,3 +150,47 @@ def db_session():
         session.close()
         transaction.rollback()
         connection.close()
+
+
+@pytest.fixture()
+def sample_business_partner(db_session):
+    """Create a sample business partner for document tests."""
+    partner = BusinessPartner(
+        code="BP-001",
+        name="Test Customer Ltd.",
+        tax_id="SK1234567890",
+        is_customer=True,
+        is_active=True,
+    )
+    db_session.add(partner)
+    db_session.commit()
+    return partner
+
+
+@pytest.fixture()
+def sample_account(db_session):
+    """Create sample account (needed for journal entry tests)."""
+    account_type = AccountType(
+        code="ASSET",
+        name="Assets",
+        category=AccountCategory.ASSET,
+        normal_balance=NormalBalance.DEBIT,
+    )
+    currency = Currency(
+        code="EUR",
+        name="Euro",
+        symbol="€",
+        decimal_places=2,
+    )
+    db_session.add_all([account_type, currency])
+    db_session.commit()
+
+    account = Account(
+        code="1000",
+        name="Cash",
+        account_type_id=account_type.id,
+        currency_id=currency.id,
+    )
+    db_session.add(account)
+    db_session.commit()
+    return account

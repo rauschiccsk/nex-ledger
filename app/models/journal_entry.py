@@ -12,6 +12,7 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 from app.models.base import Base, TimestampMixin, UUIDMixin
 
 if TYPE_CHECKING:
+    from app.models.document import Document
     from app.models.import_batch import ImportBatch
     from app.models.journal_line import JournalLine
 
@@ -64,6 +65,10 @@ class JournalEntry(Base, UUIDMixin, TimestampMixin):
         "JournalLine",
         back_populates="journal_entry",
         cascade="all, delete-orphan",
+    )
+    documents: Mapped[list["Document"]] = relationship(
+        "Document",
+        back_populates="journal_entry",
     )
 
     __table_args__ = (

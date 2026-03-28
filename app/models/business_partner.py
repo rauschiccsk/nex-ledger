@@ -8,6 +8,7 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 from app.models.base import Base, TimestampMixin, UUIDMixin
 
 if TYPE_CHECKING:
+    from app.models.document import Document
     from app.models.journal_line import JournalLine
 
 
@@ -39,6 +40,10 @@ class BusinessPartner(Base, UUIDMixin, TimestampMixin):
     # Relationships
     journal_lines: Mapped[list["JournalLine"]] = relationship(
         "JournalLine",
+        back_populates="business_partner",
+    )
+    documents: Mapped[list["Document"]] = relationship(
+        "Document",
         back_populates="business_partner",
     )
 
