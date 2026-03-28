@@ -15,6 +15,7 @@ from app.models.account_type import AccountType  # noqa: F401 — Base.metadata 
 from app.models.base import Base
 from app.models.business_partner import BusinessPartner  # noqa: F401 — Base.metadata awareness
 from app.models.currency import Currency  # noqa: F401 — Base.metadata awareness
+from app.models.import_batch import ImportBatch  # noqa: F401 — Base.metadata awareness
 from app.models.tax_rate import TaxRate  # noqa: F401 — Base.metadata awareness
 
 # Test database URL — NEVER use production DATABASE_URL
