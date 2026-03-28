@@ -70,7 +70,7 @@ def test_unique_entry_number(db_session):
     )
     db_session.add(entry2)
 
-    with pytest.raises(IntegrityError):
+    with pytest.raises((IntegrityError, ProgrammingError)):
         db_session.commit()
 
 

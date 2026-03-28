@@ -335,3 +335,52 @@ def test_repr(db_session):
     assert f"chart_id={chart.chart_id}" in repr_str
     assert "account_number='100'" in repr_str
     assert "name='Cash'" in repr_str
+
+
+# ── RESTRICT FK delete tests (Checklist #16 + #20) ────────────────
+
+
+def test_fk_restrict_delete_account_type(db_session):
+    """Deleting AccountType referenced by Account must fail (RESTRICT)."""
+    chart, account_type, currency = _create_dependencies(db_session)
+
+    account = Account(
+        chart_id=chart.chart_id,
+        account_number="100",
+        name="Cash",
+        account_type_id=account_type.account_type_id,
+        currency_code=currency.currency_code,
+        level=1,
+    )
+    db_session.add(account)
+    db_session.commit()
+
+    with pytest.raises((IntegrityError, ProgrammingError)):
+        db_session.execute(
+            text("DELETE FROM account_type WHERE account_type_id = :id"),
+            {"id": account_type.account_type_id},
+        )
+        db_session.flush()
+
+
+def test_fk_restrict_delete_currency(db_session):
+    """Deleting Currency referenced by Account must fail (RESTRICT)."""
+    chart, account_type, currency = _create_dependencies(db_session)
+
+    account = Account(
+        chart_id=chart.chart_id,
+        account_number="100",
+        name="Cash",
+        account_type_id=account_type.account_type_id,
+        currency_code=currency.currency_code,
+        level=1,
+    )
+    db_session.add(account)
+    db_session.commit()
+
+    with pytest.raises((IntegrityError, ProgrammingError)):
+        db_session.execute(
+            text("DELETE FROM currency WHERE currency_code = :code"),
+            {"code": currency.currency_code},
+        )
+        db_session.flush()
