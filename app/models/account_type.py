@@ -4,7 +4,7 @@ import enum
 
 from sqlalchemy import Boolean, String, UniqueConstraint
 from sqlalchemy.dialects.postgresql import ENUM as PG_ENUM
-from sqlalchemy.orm import Mapped, mapped_column
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.models.base import Base, TimestampMixin, UUIDMixin
 
@@ -51,13 +51,14 @@ class AccountType(Base, UUIDMixin, TimestampMixin):
         ),
         nullable=False,
     )
-    is_system: Mapped[bool] = mapped_column(
-        Boolean, nullable=False, server_default="false"
+    is_system: Mapped[bool] = mapped_column(Boolean, nullable=False, server_default="false")
+
+    # Relationships
+    accounts: Mapped[list["Account"]] = relationship(  # noqa: F821
+        "Account", back_populates="account_type"
     )
 
-    __table_args__ = (
-        UniqueConstraint("code", name="uq_account_type_code"),
-    )
+    __table_args__ = (UniqueConstraint("code", name="uq_account_type_code"),)
 
     def __repr__(self) -> str:
         return f"<AccountType {self.code}: {self.name} ({self.category.value})>"

@@ -1,7 +1,7 @@
 """Currency model — ISO 4217 currency definitions."""
 
 from sqlalchemy import Boolean, CheckConstraint, Integer, String, UniqueConstraint
-from sqlalchemy.orm import Mapped, mapped_column
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.models.base import Base, TimestampMixin, UUIDMixin
 
@@ -15,8 +15,11 @@ class Currency(Base, UUIDMixin, TimestampMixin):
     name: Mapped[str] = mapped_column(String(100), nullable=False)
     symbol: Mapped[str] = mapped_column(String(10), nullable=False)
     decimal_places: Mapped[int] = mapped_column(Integer, nullable=False)
-    is_active: Mapped[bool] = mapped_column(
-        Boolean, nullable=False, server_default="true"
+    is_active: Mapped[bool] = mapped_column(Boolean, nullable=False, server_default="true")
+
+    # Relationships
+    accounts: Mapped[list["Account"]] = relationship(  # noqa: F821
+        "Account", back_populates="currency"
     )
 
     __table_args__ = (

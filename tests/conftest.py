@@ -9,6 +9,7 @@ from sqlalchemy.orm import Session, sessionmaker
 from app.config import settings
 
 # Import all models so Base.metadata knows about them
+from app.models.account import Account  # noqa: F401
 from app.models.account_type import AccountType  # noqa: F401
 from app.models.base import Base
 from app.models.business_partner import BusinessPartner  # noqa: F401
