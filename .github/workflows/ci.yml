@@ -43,8 +43,8 @@ jobs:
           python-version: '3.12'
       - name: Install dependencies
         run: |
-          pip install -r requirements.txt
-          pip install pytest pytest-cov httpx
+          pip install poetry
+          poetry install --no-interaction
       - name: Run tests
         env:
           TEST_DATABASE_URL: postgresql+pg8000://ledger:ledger@localhost:5432/nex_ledger_test

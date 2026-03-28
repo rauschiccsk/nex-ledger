@@ -30,7 +30,7 @@ class Currency(Base):
         server_default=text("true"),
     )
     updated_at = Column(
-        TIMESTAMP,
+        TIMESTAMP(timezone=True),
         nullable=False,
         server_default=func.now(),
         onupdate=func.clock_timestamp(),

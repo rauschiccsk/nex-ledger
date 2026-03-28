@@ -1,7 +1,7 @@
 """Tests for AccountType model."""
 
 import pytest
-from sqlalchemy.exc import IntegrityError
+from sqlalchemy.exc import IntegrityError, ProgrammingError
 
 from app.models.account_type import AccountType
 
@@ -45,7 +45,7 @@ def test_unique_code_constraint(db_session):
     asset2 = AccountType(code="ASSET", name="Assets Duplicate")
     db_session.add(asset2)
 
-    with pytest.raises((IntegrityError, Exception)):
+    with pytest.raises((IntegrityError, ProgrammingError)):
         db_session.commit()
 
     db_session.rollback()
