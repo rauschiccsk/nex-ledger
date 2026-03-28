@@ -7,11 +7,11 @@ from app.config import settings
 
 # Sync engine with pg8000 dialect
 engine = create_engine(
-    settings.database_url,
+    settings.DATABASE_URL,
     pool_pre_ping=True,
     pool_size=5,
     max_overflow=10,
-    echo=settings.debug,
+    echo=settings.DEBUG,
 )
 
 # Sync sessionmaker
