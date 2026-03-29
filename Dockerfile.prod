@@ -1,0 +1,61 @@
+# ==============================================================================
+# NEX Ledger — Production Dockerfile (multi-stage build)
+# Port: 9180 (ICC Port Registry)
+# ==============================================================================
+
+# --- Builder stage: export deps & build wheels --------------------------------
+FROM python:3.12-slim AS builder
+
+WORKDIR /build
+
+# Install Poetry for dependency export
+RUN pip install --no-cache-dir poetry==1.7.1
+
+# Copy dependency manifests only (layer caching)
+COPY pyproject.toml poetry.lock ./
+
+# Export production-only requirements (no dev deps)
+RUN poetry export -f requirements.txt --without dev --output requirements.txt
+
+# Build wheels for all production dependencies
+RUN pip wheel --no-cache-dir --no-deps --wheel-dir /build/wheels -r requirements.txt
+
+# --- Runtime stage: minimal production image ----------------------------------
+FROM python:3.12-slim
+
+# Create non-root user/group
+RUN groupadd -g 1000 nexledger && \
+    useradd -u 1000 -g nexledger -s /bin/bash -m nexledger
+
+WORKDIR /app
+
+# Install pre-built wheels (no compiler needed at runtime)
+COPY --from=builder /build/wheels /wheels
+RUN pip install --no-cache-dir --no-compile /wheels/* && \
+    rm -rf /wheels /tmp/* /var/tmp/* /root/.cache && \
+    find /usr/local/lib/python3.12 -type d -name __pycache__ -exec rm -rf {} + 2>/dev/null || true
+
+# Copy application code
+COPY --chown=nexledger:nexledger app/ ./app/
+
+# Copy Alembic for database migrations
+COPY --chown=nexledger:nexledger alembic/ ./alembic/
+COPY --chown=nexledger:nexledger alembic.ini ./
+
+# Switch to non-root user
+USER nexledger
+
+# Expose API port (ICC Port Registry)
+EXPOSE 9180
+
+# Health check — pure Python, no curl needed
+HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
+    CMD python -c "import urllib.request; urllib.request.urlopen('http://localhost:9180/health')"
+
+# Gunicorn with Uvicorn workers — production ASGI server
+CMD ["python", "-m", "gunicorn", "app.main:app", \
+     "--workers", "4", \
+     "--worker-class", "uvicorn.workers.UvicornWorker", \
+     "--bind", "0.0.0.0:9180", \
+     "--access-logfile", "-", \
+     "--error-logfile", "-"]

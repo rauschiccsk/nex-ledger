@@ -1,0 +1,51 @@
+# ==============================================================================
+# NEX Ledger — Production Docker Compose
+# Port: 9180 (ICC Port Registry)
+#
+# Usage:
+#   docker compose -f docker-compose.prod.yml up -d
+#
+# Required environment variables (via .env or external secrets):
+#   DATABASE_URL, SECRET_KEY, POSTGRES_PASSWORD
+# ==============================================================================
+
+services:
+  app:
+    image: ghcr.io/rauschiccsk/nexledger:latest
+    container_name: nexledger-app
+    restart: always
+    ports:
+      - "9180:9180"
+    environment:
+      - DATABASE_URL=${DATABASE_URL}
+      - SECRET_KEY=${SECRET_KEY}
+      - APP_NAME=${APP_NAME:-nex-ledger}
+      - LOG_LEVEL=${LOG_LEVEL:-INFO}
+    depends_on:
+      db:
+        condition: service_healthy
+    # No volume mounts — stateless app container
+
+  db:
+    image: postgres:16-alpine
+    container_name: nexledger-db
+    restart: always
+    volumes:
+      - nexledger-db-data:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_DB=${POSTGRES_DB:-nex_ledger}
+      - POSTGRES_USER=${POSTGRES_USER:-ledger}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-ledger} -d ${POSTGRES_DB:-nex_ledger}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  nexledger-db-data:
+    name: nexledger-db-data
+
+networks:
+  default:
+    name: nexledger-network
