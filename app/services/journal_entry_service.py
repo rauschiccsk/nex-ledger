@@ -5,6 +5,7 @@ Handles double-entry validation and balance calculations.
 """
 from decimal import Decimal
 
+from sqlalchemy import func
 from sqlalchemy.orm import Session
 
 from app.models.journal_entry_line import JournalEntryLine
@@ -12,6 +13,24 @@ from app.models.journal_entry_line import JournalEntryLine
 
 class JournalEntryService:
     """Service for journal entry operations."""
+
+    @staticmethod
+    def _sum_entry_amounts(
+        session: Session, entry_id: int
+    ) -> tuple[Decimal, Decimal]:
+        """SQL-level aggregation of debit/credit for an entry.
+
+        Returns (total_debit, total_credit) as Decimal.
+        Returns (Decimal("0.00"), Decimal("0.00")) when no lines exist.
+        """
+        result = session.query(
+            func.coalesce(func.sum(JournalEntryLine.debit_amount), Decimal("0.00")),
+            func.coalesce(func.sum(JournalEntryLine.credit_amount), Decimal("0.00")),
+        ).filter(
+            JournalEntryLine.entry_id == entry_id
+        ).one()
+
+        return result[0], result[1]
 
     @staticmethod
     def validate_double_entry(session: Session, entry_id: int) -> bool:
@@ -26,19 +45,21 @@ class JournalEntryService:
             True if balanced
 
         Raises:
-            ValueError: If sum of debits != sum of credits
+            ValueError: If sum of debits != sum of credits or no lines exist
         """
-        lines = (
-            session.query(JournalEntryLine)
-            .filter_by(entry_id=entry_id)
-            .all()
+        # Check that at least one line exists
+        line_count = (
+            session.query(func.count(JournalEntryLine.line_id))
+            .filter(JournalEntryLine.entry_id == entry_id)
+            .scalar()
         )
 
-        if not lines:
+        if not line_count:
             raise ValueError(f"No lines found for entry {entry_id}")
 
-        total_debit = sum(line.debit_amount for line in lines)
-        total_credit = sum(line.credit_amount for line in lines)
+        total_debit, total_credit = JournalEntryService._sum_entry_amounts(
+            session, entry_id
+        )
 
         if total_debit != total_credit:
             raise ValueError(
@@ -60,15 +81,6 @@ class JournalEntryService:
             entry_id: Journal entry ID (entry_id column)
 
         Returns:
-            Tuple of (total_debit, total_credit)
+            Tuple of (total_debit, total_credit) as Decimal
         """
-        lines = (
-            session.query(JournalEntryLine)
-            .filter_by(entry_id=entry_id)
-            .all()
-        )
-
-        total_debit = sum(line.debit_amount for line in lines)
-        total_credit = sum(line.credit_amount for line in lines)
-
-        return (total_debit, total_credit)
+        return JournalEntryService._sum_entry_amounts(session, entry_id)

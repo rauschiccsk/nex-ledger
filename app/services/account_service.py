@@ -48,8 +48,7 @@ class AccountService:
 
         # current_balance = opening + debit - credit
         account.current_balance = opening_balance + total_debit - total_credit
-        session.commit()
-        session.refresh(account)
+        session.flush()
 
         return account
 

@@ -230,5 +230,7 @@ def test_get_entry_balance_empty(db_session, setup_accounts):
         db_session, entry.entry_id
     )
 
-    assert total_debit == 0
-    assert total_credit == 0
+    assert total_debit == Decimal("0.00")
+    assert total_credit == Decimal("0.00")
+    assert isinstance(total_debit, Decimal)
+    assert isinstance(total_credit, Decimal)
