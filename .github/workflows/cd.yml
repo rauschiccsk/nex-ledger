@@ -1,0 +1,18 @@
+name: "CD — NEX Ledger"
+
+on:
+  push:
+    tags:
+      - "v*"
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      # TODO: Deploy step — integrate with ANDROS deploy agent
+      - name: Deploy placeholder
+        run: |
+          echo "Tag: ${{ github.ref_name }}"
+          echo "Deploy step not yet implemented — integrate with ANDROS deploy agent"
