@@ -51,7 +51,7 @@ jobs:
       - name: Install dependencies
         run: |
           pip install poetry
-          poetry install --no-interaction
+          poetry install --no-root --no-interaction
 
       - name: Run tests with coverage
         run: |
