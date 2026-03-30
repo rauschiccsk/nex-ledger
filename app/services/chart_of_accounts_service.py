@@ -18,7 +18,7 @@ class ChartOfAccountsService:
 
     @staticmethod
     def list_charts(
-        session: Session, skip: int = 0, limit: int = 100
+        session: Session, skip: int = 0, limit: int = 100, filters: dict | None = None
     ) -> tuple[list[ChartOfAccounts], int]:
         """
         List charts of accounts with pagination, ordered by chart_id ASC.

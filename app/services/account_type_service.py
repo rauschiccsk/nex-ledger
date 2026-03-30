@@ -10,9 +10,6 @@ from sqlalchemy.orm import Session
 from app.models.account import Account
 from app.models.account_type import AccountType
 
-_VALID_NORMAL_BALANCES = {"debit", "credit"}
-
-
 class AccountTypeService:
     """Service for account type CRUD operations."""
 
@@ -20,7 +17,7 @@ class AccountTypeService:
 
     @staticmethod
     def list_account_types(
-        session: Session, skip: int = 0, limit: int = 100
+        session: Session, skip: int = 0, limit: int = 100, filters: dict | None = None
     ) -> tuple[list[AccountType], int]:
         """
         List account types with pagination, ordered by account_type_id ASC.
@@ -73,7 +70,7 @@ class AccountTypeService:
 
         if not account_type:
             raise ValueError(
-                f"AccountType s ID {account_type_id} neexistuje"
+                f"AccountType with ID {account_type_id} not found"
             )
 
         return account_type
@@ -88,34 +85,19 @@ class AccountTypeService:
         Args:
             session: Database session
             account_type_data: Dict with account type fields
-                (name, normal_balance required)
+                (name required)
 
         Returns:
             Created AccountType object
 
         Raises:
-            ValueError: If validation fails (missing name/normal_balance,
-                invalid normal_balance value)
+            ValueError: If validation fails (missing name)
         """
         name = account_type_data.get("name")
         if not name:
             raise ValueError("Account type name is required")
 
-        normal_balance = account_type_data.get("normal_balance")
-        if not normal_balance:
-            raise ValueError("Account type normal_balance is required")
-
-        if normal_balance not in _VALID_NORMAL_BALANCES:
-            raise ValueError(
-                f"normal_balance must be 'debit' or 'credit', got: {normal_balance!r}"
-            )
-
-        # Remove normal_balance from data — not a DB column
-        db_data = {
-            k: v for k, v in account_type_data.items() if k != "normal_balance"
-        }
-
-        account_type = AccountType(**db_data)
+        account_type = AccountType(**account_type_data)
         session.add(account_type)
         session.flush()
 
@@ -143,12 +125,7 @@ class AccountTypeService:
             session, account_type_id
         )
 
-        # Remove normal_balance from update data — not a DB column
-        update_data = {
-            k: v for k, v in account_type_data.items() if k != "normal_balance"
-        }
-
-        for key, value in update_data.items():
+        for key, value in account_type_data.items():
             setattr(account_type, key, value)
 
         session.flush()
@@ -183,8 +160,8 @@ class AccountTypeService:
 
         if usage_count > 0:
             raise ValueError(
-                f"AccountType {account_type_id} je použitý v {usage_count} "
-                f"účtoch a nemôže byť zmazaný"
+                f"Cannot delete AccountType {account_type_id}: "
+                f"referenced by {usage_count} accounts"
             )
 
         session.delete(account_type)

@@ -17,9 +17,9 @@ class DocumentEntryLinkService:
 
     # ── CRUD ─────────────────────────────────────────────────────────
 
-    @classmethod
+    @staticmethod
     def list_links(
-        cls, session: Session, skip: int = 0, limit: int = 100
+        session: Session, skip: int = 0, limit: int = 100, filters: dict | None = None
     ) -> tuple[list[DocumentEntryLink], int]:
         """
         List links with pagination, ordered by link_id ASC.
@@ -28,6 +28,7 @@ class DocumentEntryLinkService:
             session: Database session
             skip: Number of records to skip
             limit: Maximum number of records to return
+            filters: Optional filters (reserved for future use)
 
         Returns:
             Tuple of (links list, total count)
@@ -43,9 +44,9 @@ class DocumentEntryLinkService:
 
         return links, total
 
-    @classmethod
+    @staticmethod
     def get_link(
-        cls, session: Session, link_id: int
+        session: Session, link_id: int
     ) -> DocumentEntryLink:
         """
         Get link by ID.
@@ -71,9 +72,9 @@ class DocumentEntryLinkService:
 
         return link
 
-    @classmethod
+    @staticmethod
     def create_link(
-        cls, session: Session, link_data: dict
+        session: Session, link_data: dict
     ) -> DocumentEntryLink:
         """
         Create a new document–entry link.
@@ -131,9 +132,9 @@ class DocumentEntryLinkService:
 
         return link
 
-    @classmethod
+    @staticmethod
     def delete_link(
-        cls, session: Session, link_id: int
+        session: Session, link_id: int
     ) -> None:
         """
         Delete a document–entry link.
@@ -145,6 +146,6 @@ class DocumentEntryLinkService:
         Raises:
             ValueError: If link not found
         """
-        link = cls.get_link(session, link_id)
+        link = DocumentEntryLinkService.get_link(session, link_id)
         session.delete(link)
         session.flush()

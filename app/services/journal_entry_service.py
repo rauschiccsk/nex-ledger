@@ -93,7 +93,7 @@ class JournalEntryService:
 
     @staticmethod
     def list_entries(
-        session: Session, skip: int = 0, limit: int = 100
+        session: Session, skip: int = 0, limit: int = 100, filters: dict | None = None
     ) -> tuple[list[JournalEntry], int]:
         """Return paginated journal entries ordered by date DESC, id DESC.
 
@@ -196,7 +196,7 @@ class JournalEntryService:
         """Update an existing journal entry.
 
         Keys that may be updated:
-            entry_number, entry_date, description, batch_id, created_by
+            entry_date, description, reference_number
         The ``lines`` key is ignored — use line CRUD methods instead.
 
         Args:
@@ -212,7 +212,7 @@ class JournalEntryService:
         """
         entry = JournalEntryService.get_entry(session, entry_id)
 
-        updatable = ("entry_number", "entry_date", "description", "batch_id", "created_by")
+        updatable = ("entry_date", "description", "reference_number")
         for key in updatable:
             if key in entry_data:
                 setattr(entry, key, entry_data[key])

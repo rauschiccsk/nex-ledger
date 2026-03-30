@@ -148,7 +148,7 @@ class TestGetAccountType:
 
     def test_get_not_found(self, db_session: Session):
         """Non-existent account type raises ValueError."""
-        with pytest.raises(ValueError, match="AccountType s ID 99999 neexistuje"):
+        with pytest.raises(ValueError, match="AccountType with ID 99999 not found"):
             AccountTypeService.get_account_type(db_session, 99999)
 
 
@@ -165,7 +165,6 @@ class TestCreateAccountType:
             {
                 "code": "ASSET",
                 "name": "Assets",
-                "normal_balance": "debit",
                 "description": "Asset accounts",
             },
         )
@@ -184,36 +183,12 @@ class TestCreateAccountType:
         assert result is not None
         assert result.name == "Assets"
 
-    def test_create_missing_fields(self, db_session: Session):
+    def test_create_missing_name(self, db_session: Session):
         """Missing name raises ValueError."""
         with pytest.raises(ValueError, match="Account type name is required"):
             AccountTypeService.create_account_type(
                 db_session,
-                {"code": "ASSET", "normal_balance": "debit"},
-            )
-
-    def test_create_missing_normal_balance(self, db_session: Session):
-        """Missing normal_balance raises ValueError."""
-        with pytest.raises(
-            ValueError, match="Account type normal_balance is required"
-        ):
-            AccountTypeService.create_account_type(
-                db_session,
-                {"code": "ASSET", "name": "Assets"},
-            )
-
-    def test_create_invalid_normal_balance(self, db_session: Session):
-        """Invalid normal_balance value raises ValueError."""
-        with pytest.raises(
-            ValueError, match="normal_balance must be 'debit' or 'credit'"
-        ):
-            AccountTypeService.create_account_type(
-                db_session,
-                {
-                    "code": "ASSET",
-                    "name": "Assets",
-                    "normal_balance": "invalid",
-                },
+                {"code": "ASSET"},
             )
 
 
@@ -237,7 +212,7 @@ class TestUpdateAccountType:
 
     def test_update_not_found(self, db_session: Session):
         """Non-existent account type raises ValueError."""
-        with pytest.raises(ValueError, match="AccountType s ID 99999 neexistuje"):
+        with pytest.raises(ValueError, match="AccountType with ID 99999 not found"):
             AccountTypeService.update_account_type(
                 db_session, 99999, {"name": "Ghost"}
             )
@@ -269,7 +244,7 @@ class TestDeleteAccountType:
         """Account type referenced by accounts cannot be deleted."""
         with pytest.raises(
             ValueError,
-            match=r"AccountType \d+ je použitý v 1 účtoch a nemôže byť zmazaný",
+            match=r"Cannot delete AccountType \d+: referenced by 1 accounts",
         ):
             AccountTypeService.delete_account_type(
                 db_session, asset_type.account_type_id
@@ -277,5 +252,5 @@ class TestDeleteAccountType:
 
     def test_delete_not_found(self, db_session: Session):
         """Non-existent account type raises ValueError."""
-        with pytest.raises(ValueError, match="AccountType s ID 99999 neexistuje"):
+        with pytest.raises(ValueError, match="AccountType with ID 99999 not found"):
             AccountTypeService.delete_account_type(db_session, 99999)

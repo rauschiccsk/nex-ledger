@@ -106,6 +106,7 @@ class ImportService:
         session: Session,
         skip: int = 0,
         limit: int = 100,
+        filters: dict | None = None,
     ) -> tuple[list[ImportBatch], int]:
         """
         List import batches with pagination, ordered by imported_at DESC, batch_id DESC.
@@ -161,7 +162,7 @@ class ImportService:
         """
         Update import batch attributes (not status — use state wrappers for that).
 
-        Allowed fields: filename, row_count, validation_report.
+        Allowed fields: row_count, imported_by.
         Status, imported_at are NOT updatable via this method.
 
         Args:
@@ -177,7 +178,7 @@ class ImportService:
         """
         batch = ImportService.get_batch(session, batch_id)
 
-        allowed_fields = {"filename", "row_count", "validation_report"}
+        allowed_fields = {"row_count", "imported_by"}
         for key, value in batch_data.items():
             if key in allowed_fields:
                 setattr(batch, key, value)
@@ -254,7 +255,7 @@ class ImportService:
     @staticmethod
     def reject_batch(session: Session, batch_id: int) -> ImportBatch:
         """
-        Transition batch to 'rejected' (from 'pending' or 'validated').
+        Transition batch to 'rejected' (from any status except already rejected).
 
         Args:
             session: Database session
@@ -264,13 +265,13 @@ class ImportService:
             Updated ImportBatch instance
 
         Raises:
-            ValueError: If batch not found or status is not 'pending'/'validated'
+            ValueError: If batch not found or already rejected
         """
         batch = ImportService.get_batch(session, batch_id)
 
-        if batch.status not in ("pending", "validated"):
+        if batch.status == "rejected":
             raise ValueError(
-                f"Cannot reject batch {batch_id} with status {batch.status}"
+                f"Batch {batch_id} is already rejected"
             )
 
         return ImportService.update_batch_status(session, batch_id, "rejected")

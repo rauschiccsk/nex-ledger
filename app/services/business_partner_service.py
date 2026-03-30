@@ -17,9 +17,9 @@ class BusinessPartnerService:
 
     # ── CRUD ─────────────────────────────────────────────────────────
 
-    @classmethod
+    @staticmethod
     def list_partners(
-        cls, session: Session, skip: int = 0, limit: int = 100
+        session: Session, skip: int = 0, limit: int = 100, filters: dict | None = None
     ) -> tuple[list[BusinessPartner], int]:
         """
         List partners with pagination, ordered by partner_id ASC.
@@ -40,8 +40,8 @@ class BusinessPartnerService:
 
         return partners, total
 
-    @classmethod
-    def get_partner(cls, session: Session, partner_id: int) -> BusinessPartner:
+    @staticmethod
+    def get_partner(session: Session, partner_id: int) -> BusinessPartner:
         """
         Get business partner by ID.
 
@@ -68,9 +68,9 @@ class BusinessPartnerService:
 
         return partner
 
-    @classmethod
+    @staticmethod
     def create_partner(
-        cls, session: Session, partner_data: dict
+        session: Session, partner_data: dict
     ) -> BusinessPartner:
         """
         Create a new business partner.
@@ -95,9 +95,9 @@ class BusinessPartnerService:
 
         return partner
 
-    @classmethod
+    @staticmethod
     def update_partner(
-        cls, session: Session, partner_id: int, partner_data: dict
+        session: Session, partner_id: int, partner_data: dict
     ) -> BusinessPartner:
         """
         Update an existing business partner.
@@ -113,7 +113,7 @@ class BusinessPartnerService:
         Raises:
             ValueError: If partner not found
         """
-        partner = cls.get_partner(session, partner_id)
+        partner = BusinessPartnerService.get_partner(session, partner_id)
 
         for key, value in partner_data.items():
             setattr(partner, key, value)
@@ -121,8 +121,8 @@ class BusinessPartnerService:
         session.flush()
         return partner
 
-    @classmethod
-    def delete_partner(cls, session: Session, partner_id: int) -> None:
+    @staticmethod
+    def delete_partner(session: Session, partner_id: int) -> None:
         """
         Delete a business partner.
 
@@ -135,7 +135,7 @@ class BusinessPartnerService:
         Raises:
             ValueError: If partner not found or referenced by journal entries
         """
-        partner = cls.get_partner(session, partner_id)
+        partner = BusinessPartnerService.get_partner(session, partner_id)
 
         # FK guard: check journal_entry_line references
         usage = session.execute(

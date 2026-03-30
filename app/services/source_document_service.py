@@ -17,9 +17,9 @@ class SourceDocumentService:
 
     # ── CRUD ─────────────────────────────────────────────────────────
 
-    @classmethod
+    @staticmethod
     def list_documents(
-        cls, session: Session, skip: int = 0, limit: int = 100
+        session: Session, skip: int = 0, limit: int = 100, filters: dict | None = None
     ) -> tuple[list[SourceDocument], int]:
         """
         List documents with pagination, ordered by document_id ASC.
@@ -28,6 +28,7 @@ class SourceDocumentService:
             session: Database session
             skip: Number of records to skip
             limit: Maximum number of records to return
+            filters: Optional filters (reserved for future use)
 
         Returns:
             Tuple of (documents list, total count)
@@ -40,9 +41,9 @@ class SourceDocumentService:
 
         return documents, total
 
-    @classmethod
+    @staticmethod
     def get_document(
-        cls, session: Session, document_id: int
+        session: Session, document_id: int
     ) -> SourceDocument:
         """
         Get source document by ID.
@@ -70,9 +71,9 @@ class SourceDocumentService:
 
         return document
 
-    @classmethod
+    @staticmethod
     def create_document(
-        cls, session: Session, document_data: dict
+        session: Session, document_data: dict
     ) -> SourceDocument:
         """
         Create a new source document.
@@ -99,9 +100,9 @@ class SourceDocumentService:
 
         return document
 
-    @classmethod
+    @staticmethod
     def update_document(
-        cls, session: Session, document_id: int, document_data: dict
+        session: Session, document_id: int, document_data: dict
     ) -> SourceDocument:
         """
         Update an existing source document.
@@ -117,7 +118,7 @@ class SourceDocumentService:
         Raises:
             ValueError: If document not found
         """
-        document = cls.get_document(session, document_id)
+        document = SourceDocumentService.get_document(session, document_id)
 
         for key, value in document_data.items():
             if hasattr(document, key):
@@ -126,9 +127,9 @@ class SourceDocumentService:
         session.flush()
         return document
 
-    @classmethod
+    @staticmethod
     def delete_document(
-        cls, session: Session, document_id: int
+        session: Session, document_id: int
     ) -> None:
         """
         Delete a source document.
@@ -143,7 +144,7 @@ class SourceDocumentService:
         Raises:
             ValueError: If document not found or referenced by journal entries
         """
-        document = cls.get_document(session, document_id)
+        document = SourceDocumentService.get_document(session, document_id)
 
         # FK guard: check document_entry_link references
         usage = session.execute(

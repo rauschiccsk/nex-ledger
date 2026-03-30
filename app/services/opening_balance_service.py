@@ -17,7 +17,7 @@ class OpeningBalanceService:
 
     @staticmethod
     def list_balances(
-        session: Session, skip: int = 0, limit: int = 100
+        session: Session, skip: int = 0, limit: int = 100, filters: dict | None = None
     ) -> tuple[list[OpeningBalance], int]:
         """
         List opening balances with pagination, ordered by balance_id ASC.
@@ -137,27 +137,10 @@ class OpeningBalanceService:
         """
         balance = OpeningBalanceService.get_balance(session, balance_id)
 
-        # Determine effective period_id / account_id after update
-        new_period_id = balance_data.get("period_id", balance.period_id)
-        new_account_id = balance_data.get("account_id", balance.account_id)
-
-        # Unique constraint recheck if period_id or account_id is changing
-        if new_period_id != balance.period_id or new_account_id != balance.account_id:
-            existing_count = session.execute(
-                select(func.count(OpeningBalance.balance_id)).where(
-                    OpeningBalance.period_id == new_period_id,
-                    OpeningBalance.account_id == new_account_id,
-                    OpeningBalance.balance_id != balance_id,
-                )
-            ).scalar()
-
-            if existing_count > 0:
-                raise ValueError(
-                    "Opening balance for this period and account already exists"
-                )
-
+        updatable = ("debit_amount", "credit_amount")
         for key, value in balance_data.items():
-            setattr(balance, key, value)
+            if key in updatable:
+                setattr(balance, key, value)
 
         session.flush()
         return balance

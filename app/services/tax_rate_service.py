@@ -20,7 +20,7 @@ class TaxRateService:
 
     @staticmethod
     def list_tax_rates(
-        session: Session, skip: int = 0, limit: int = 100
+        session: Session, skip: int = 0, limit: int = 100, filters: dict | None = None
     ) -> tuple[list[TaxRate], int]:
         """
         List tax rates with pagination, ordered by tax_rate_id ASC.

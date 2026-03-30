@@ -21,7 +21,7 @@ class AccountService:
 
     @staticmethod
     def list_accounts(
-        session: Session, skip: int = 0, limit: int = 100
+        session: Session, skip: int = 0, limit: int = 100, filters: dict | None = None
     ) -> tuple[list[Account], int]:
         """
         List accounts with pagination, ordered by account_number ASC.

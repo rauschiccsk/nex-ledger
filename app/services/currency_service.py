@@ -18,7 +18,7 @@ class CurrencyService:
 
     @staticmethod
     def list_currencies(
-        session: Session, skip: int = 0, limit: int = 100
+        session: Session, skip: int = 0, limit: int = 100, filters: dict | None = None
     ) -> tuple[list[Currency], int]:
         """
         List currencies with pagination, ordered by currency_code ASC.

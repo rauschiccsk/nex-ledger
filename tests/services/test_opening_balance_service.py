@@ -332,42 +332,30 @@ class TestUpdateBalance:
         assert updated.credit_amount == Decimal("200.00")
         assert updated.balance_id == balance.balance_id
 
-    def test_update_duplicate(
+    def test_update_ignores_composite_key_fields(
         self,
         db_session: Session,
-        period: AccountingPeriod,
-        account: Account,
-        second_account: Account,
+        balance: OpeningBalance,
     ):
-        """Updating to existing (period, account) combo raises ValueError."""
-        # Create two balances with different accounts
-        b1 = OpeningBalanceService.create_balance(
+        """Composite key fields (period_id, account_id) are NOT updatable."""
+        original_period_id = balance.period_id
+        original_account_id = balance.account_id
+
+        updated = OpeningBalanceService.update_balance(
             db_session,
+            balance.balance_id,
             {
-                "period_id": period.period_id,
-                "account_id": account.account_id,
-                "debit_amount": Decimal("100.00"),
-            },
-        )
-        OpeningBalanceService.create_balance(
-            db_session,
-            {
-                "period_id": period.period_id,
-                "account_id": second_account.account_id,
-                "debit_amount": Decimal("200.00"),
+                "period_id": 99999,
+                "account_id": 99999,
+                "debit_amount": Decimal("777.00"),
             },
         )
 
-        # Try to update b1 to b2's account_id
-        with pytest.raises(
-            ValueError,
-            match="Opening balance for this period and account already exists",
-        ):
-            OpeningBalanceService.update_balance(
-                db_session,
-                b1.balance_id,
-                {"account_id": second_account.account_id},
-            )
+        # Composite key fields should be unchanged
+        assert updated.period_id == original_period_id
+        assert updated.account_id == original_account_id
+        # Allowed field should be updated
+        assert updated.debit_amount == Decimal("777.00")
 
     def test_update_not_found(self, db_session: Session):
         """Non-existent balance raises ValueError."""

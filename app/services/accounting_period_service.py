@@ -19,7 +19,7 @@ class AccountingPeriodService:
 
     @staticmethod
     def list_periods(
-        session: Session, skip: int = 0, limit: int = 100
+        session: Session, skip: int = 0, limit: int = 100, filters: dict | None = None
     ) -> tuple[list[AccountingPeriod], int]:
         """
         List accounting periods with pagination, ordered by start_date DESC.

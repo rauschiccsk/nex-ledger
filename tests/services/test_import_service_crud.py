@@ -98,22 +98,36 @@ class TestUpdateBatch:
     def test_update_batch_success(
         self, db_session: Session, sample_batch: ImportBatch
     ):
-        """Update allowed fields (filename, row_count)."""
+        """Update allowed fields (row_count, imported_by)."""
         updated = ImportService.update_batch(
             db_session,
             sample_batch.batch_id,
-            {"filename": "updated.csv", "row_count": 42},
+            {"row_count": 42, "imported_by": "new_user"},
         )
 
-        assert updated.filename == "updated.csv"
         assert updated.row_count == 42
+        assert updated.imported_by == "new_user"
         # Status should remain unchanged
         assert updated.status == "pending"
+
+    def test_update_batch_ignores_disallowed_fields(
+        self, db_session: Session, sample_batch: ImportBatch
+    ):
+        """Fields outside allowed_fields (filename) are silently ignored."""
+        original_filename = sample_batch.filename
+        updated = ImportService.update_batch(
+            db_session,
+            sample_batch.batch_id,
+            {"filename": "should_not_change.csv", "row_count": 10},
+        )
+
+        assert updated.filename == original_filename
+        assert updated.row_count == 10
 
     def test_update_batch_not_found(self, db_session: Session):
         """Non-existent batch raises ValueError."""
         with pytest.raises(ValueError, match="Import batch 99999 not found"):
-            ImportService.update_batch(db_session, 99999, {"filename": "x.csv"})
+            ImportService.update_batch(db_session, 99999, {"row_count": 1})
 
 
 class TestDeleteBatch:
@@ -216,11 +230,10 @@ class TestRejectBatch:
 
         assert result.status == "rejected"
 
-    def test_reject_batch_invalid_status(
+    def test_reject_batch_from_imported(
         self, db_session: Session, sample_batch: ImportBatch
     ):
-        """ValueError if batch is already 'imported'."""
-        # Move through: pending → validated → imported
+        """Batch can be rejected from 'imported' status (any → rejected)."""
         ImportService.update_batch_status(
             db_session, sample_batch.batch_id, "validated"
         )
@@ -228,5 +241,14 @@ class TestRejectBatch:
             db_session, sample_batch.batch_id, "imported"
         )
 
-        with pytest.raises(ValueError, match="Cannot reject batch"):
+        result = ImportService.reject_batch(db_session, sample_batch.batch_id)
+        assert result.status == "rejected"
+
+    def test_reject_batch_already_rejected(
+        self, db_session: Session, sample_batch: ImportBatch
+    ):
+        """ValueError if batch is already rejected."""
+        ImportService.reject_batch(db_session, sample_batch.batch_id)
+
+        with pytest.raises(ValueError, match="already rejected"):
             ImportService.reject_batch(db_session, sample_batch.batch_id)
