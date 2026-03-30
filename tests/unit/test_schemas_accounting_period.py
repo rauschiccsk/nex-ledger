@@ -109,9 +109,6 @@ def test_accounting_period_read_from_orm():
 def test_accounting_period_update_optional_fields():
     """Test AccountingPeriodUpdate všetky polia optional."""
     update = AccountingPeriodUpdate()
-    assert update.chart_id is None
-    assert update.year is None
-    assert update.period_number is None
     assert update.start_date is None
     assert update.end_date is None
     assert update.is_closed is None
@@ -121,5 +118,4 @@ def test_accounting_period_update_partial():
     """Test partial update (len is_closed)."""
     update = AccountingPeriodUpdate(is_closed=True)
     assert update.is_closed is True
-    assert update.chart_id is None
-    assert update.year is None
+    assert update.start_date is None

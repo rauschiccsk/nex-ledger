@@ -15,7 +15,7 @@ from app.schemas.source_document import (
 def test_source_document_create_valid():
     """Test vytvorenia SourceDocument s validnými dátami."""
     data = {
-        "document_type": "invoice",
+        "document_type": "issued_invoice",
         "document_number": "INV-2024-001",
         "issue_date": date(2024, 1, 15),
         "partner_id": 1,
@@ -23,7 +23,7 @@ def test_source_document_create_valid():
         "currency_code": "EUR",
     }
     schema = SourceDocumentCreate(**data)
-    assert schema.document_type == "invoice"
+    assert schema.document_type == "issued_invoice"
     assert schema.document_number == "INV-2024-001"
     assert schema.total_amount == Decimal("1500.50")
 
@@ -45,7 +45,7 @@ def test_source_document_create_negative_amount():
     """Test negatívnej sumy (neprípustné)."""
     with pytest.raises(ValueError):
         SourceDocumentCreate(
-            document_type="invoice",
+            document_type="issued_invoice",
             document_number="INV-001",
             issue_date=date(2024, 1, 1),
             partner_id=1,
@@ -58,7 +58,7 @@ def test_source_document_create_invalid_partner_id():
     """Test neplatného partner_id (musí byť > 0)."""
     with pytest.raises(ValueError):
         SourceDocumentCreate(
-            document_type="invoice",
+            document_type="issued_invoice",
             document_number="INV-001",
             issue_date=date(2024, 1, 1),
             partner_id=0,
@@ -71,7 +71,7 @@ def test_source_document_create_invalid_currency_code():
     """Test neplatného currency_code (musí byť presne 3 znaky)."""
     with pytest.raises(ValueError):
         SourceDocumentCreate(
-            document_type="invoice",
+            document_type="issued_invoice",
             document_number="INV-001",
             issue_date=date(2024, 1, 1),
             partner_id=1,

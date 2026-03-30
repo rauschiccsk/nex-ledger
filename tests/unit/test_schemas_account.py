@@ -17,10 +17,9 @@ def test_account_create_valid():
         account_type_id=1,
         currency_code="EUR",
         parent_account_id=None,
-        level=0,
+        level=1,
         is_active=True,
         opening_balance=Decimal("1000.50"),
-        current_balance=Decimal("1000.50"),
     )
     assert data.chart_id == 1
     assert data.account_number == "111"
@@ -28,10 +27,9 @@ def test_account_create_valid():
     assert data.account_type_id == 1
     assert data.currency_code == "EUR"
     assert data.parent_account_id is None
-    assert data.level == 0
+    assert data.level == 1
     assert data.is_active is True
     assert data.opening_balance == Decimal("1000.50")
-    assert data.current_balance == Decimal("1000.50")
 
 
 def test_account_create_defaults():
@@ -42,11 +40,10 @@ def test_account_create_defaults():
         name="Test Account",
         account_type_id=1,
         currency_code="EUR",
-        level=0,
+        level=1,
     )
     assert data.is_active is True
     assert data.opening_balance == Decimal("0.00")
-    assert data.current_balance == Decimal("0.00")
     assert data.parent_account_id is None
 
 
@@ -59,7 +56,7 @@ def test_account_create_invalid_chart_id():
             name="Test",
             account_type_id=1,
             currency_code="EUR",
-            level=0,
+            level=1,
         )
 
 
@@ -72,7 +69,7 @@ def test_account_create_invalid_currency_code():
             name="Test",
             account_type_id=1,
             currency_code="EURO",  # > 3 znaky
-            level=0,
+            level=1,
         )
 
 
@@ -135,19 +132,8 @@ def test_account_update_partial():
     """Test partial update v AccountUpdate."""
     data = AccountUpdate(name="Nový názov")
     assert data.name == "Nový názov"
-    assert data.chart_id is None
-    assert data.account_number is None
     assert data.is_active is None
-
-
-def test_account_update_balance_only():
-    """Test update len balance fields."""
-    data = AccountUpdate(
-        current_balance=Decimal("2500.75"),
-    )
-    assert data.current_balance == Decimal("2500.75")
-    assert data.opening_balance is None
-    assert data.name is None
+    assert data.account_type_id is None
 
 
 def test_account_update_invalid_level():

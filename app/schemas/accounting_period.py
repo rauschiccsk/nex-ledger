@@ -31,11 +31,8 @@ class AccountingPeriodRead(BaseModel):
 
 
 class AccountingPeriodUpdate(BaseModel):
-    """Schema pre update accounting period (všetky polia optional okrem period_id)."""
+    """Schema pre update accounting period (len editovateľné polia)."""
 
-    chart_id: int | None = Field(None, gt=0, description="FK to ChartOfAccounts")
-    year: int | None = Field(None, ge=2000, description="Fiscal year (2000+)")
-    period_number: int | None = Field(None, ge=1, le=13, description="Period number (1-12 monthly, 13 closing)")
     start_date: date | None = Field(None, description="Period start date")
     end_date: date | None = Field(None, description="Period end date")
     is_closed: bool | None = Field(None, description="Whether period is closed for entries")

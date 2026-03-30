@@ -15,17 +15,12 @@ class AccountCreate(BaseModel):
     account_type_id: int = Field(..., gt=0, description="FK na AccountType")
     currency_code: str = Field(..., min_length=3, max_length=3, description="FK na Currency (ISO 4217)")
     parent_account_id: int | None = Field(None, gt=0, description="FK na parent Account (self-referential)")
-    level: int = Field(..., ge=0, le=10, description="Úroveň v hierarchii (0=root, max 10)")
+    level: int = Field(..., ge=1, le=10, description="Úroveň v hierarchii (1=root, max 10)")
     is_active: bool = Field(True, description="Je účet aktívny?")
     opening_balance: Decimal = Field(
         default=Decimal("0.00"),
         decimal_places=2,
         description="Počiatočný zostatok",
-    )
-    current_balance: Decimal = Field(
-        default=Decimal("0.00"),
-        decimal_places=2,
-        description="Aktuálny zostatok",
     )
 
 
@@ -51,13 +46,9 @@ class AccountRead(BaseModel):
 class AccountUpdate(BaseModel):
     """Schema pre update existujúceho Account záznamu."""
 
-    chart_id: int | None = Field(None, gt=0)
-    account_number: str | None = Field(None, max_length=20)
     name: str | None = Field(None, max_length=200)
     account_type_id: int | None = Field(None, gt=0)
     currency_code: str | None = Field(None, min_length=3, max_length=3)
     parent_account_id: int | None = Field(None, gt=0)
-    level: int | None = Field(None, ge=0, le=10)
+    level: int | None = Field(None, ge=1, le=10)
     is_active: bool | None = None
-    opening_balance: Decimal | None = Field(None, decimal_places=2)
-    current_balance: Decimal | None = Field(None, decimal_places=2)

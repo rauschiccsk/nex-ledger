@@ -11,6 +11,7 @@ from pydantic import BaseModel, ConfigDict, Field
 class JournalEntryLineCreate(BaseModel):
     """Schema pre vytvorenie riadku účtovného zápisu."""
 
+    line_number: int = Field(..., ge=1, description="Poradové číslo riadku v zápise")
     account_id: int = Field(..., gt=0, description="FK na Account")
     partner_id: int | None = Field(None, gt=0, description="FK na BusinessPartner (optional)")
     tax_rate_id: int | None = Field(None, gt=0, description="FK na TaxRate (optional)")
@@ -72,7 +73,7 @@ class JournalEntryCreate(BaseModel):
     created_by: str | None = Field(None, max_length=100, description="Meno/ID používateľa")
     lines: list[JournalEntryLineCreate] = Field(
         ...,
-        min_length=1,
+        min_length=2,
         description="Zoznam riadkov dokladu (min. 1 riadok)",
     )
 

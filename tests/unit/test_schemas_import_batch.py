@@ -17,12 +17,12 @@ def test_import_batch_create_valid():
     data = {
         "filename": "test_import.csv",
         "file_hash": "a" * 64,
-        "row_count": 100,
+        "imported_by": "admin",
     }
     schema = ImportBatchCreate(**data)
     assert schema.filename == "test_import.csv"
     assert schema.file_hash == "a" * 64
-    assert schema.row_count == 100
+    assert schema.imported_by == "admin"
 
 
 def test_import_batch_create_minimal():
@@ -34,7 +34,7 @@ def test_import_batch_create_minimal():
     schema = ImportBatchCreate(**data)
     assert schema.filename == "test.csv"
     assert schema.file_hash == "b" * 64
-    assert schema.row_count is None
+    assert schema.imported_by is None
 
 
 def test_import_batch_create_invalid_hash_length():
@@ -93,18 +93,18 @@ def test_import_batch_read_invalid_status():
 
 def test_import_batch_update_partial():
     """Test partial update (všetky polia optional)."""
-    data = {"status": "validated"}
+    data = {"row_count": 50}
     schema = ImportBatchUpdate(**data)
-    assert schema.status == "validated"
-    assert schema.validation_report is None
+    assert schema.row_count == 50
+    assert schema.imported_by is None
 
 
-def test_import_batch_update_with_report():
-    """Test update s validation reportom."""
+def test_import_batch_update_with_imported_by():
+    """Test update s imported_by."""
     data = {
-        "status": "failed",
-        "validation_report": {"errors": ["Invalid row 5"]},
+        "row_count": 100,
+        "imported_by": "admin@example.com",
     }
     schema = ImportBatchUpdate(**data)
-    assert schema.status == "failed"
-    assert schema.validation_report == {"errors": ["Invalid row 5"]}
+    assert schema.row_count == 100
+    assert schema.imported_by == "admin@example.com"

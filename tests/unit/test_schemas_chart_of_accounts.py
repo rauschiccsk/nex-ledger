@@ -42,7 +42,7 @@ def test_chart_of_accounts_create_code_too_long():
 
 def test_chart_of_accounts_create_name_too_long():
     """Test validácie max_length pre name."""
-    data = {"code": "SK01", "name": "X" * 256}  # 256 znakov, max je 255
+    data = {"code": "SK01", "name": "X" * 101}  # 101 znakov, max je 100
     with pytest.raises(ValidationError) as exc_info:
         ChartOfAccountsCreate(**data)
     assert "name" in str(exc_info.value)

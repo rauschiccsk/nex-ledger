@@ -10,7 +10,7 @@ from pydantic import BaseModel, ConfigDict, Field
 class SourceDocumentCreate(BaseModel):
     """Schema pre vytvorenie source document."""
 
-    document_type: Literal["invoice", "received_invoice", "cash_receipt"] = Field(
+    document_type: Literal["issued_invoice", "received_invoice", "cash_receipt"] = Field(
         ..., description="Typ dokladu"
     )
     document_number: str = Field(..., max_length=50, description="Číslo dokladu")
@@ -42,7 +42,7 @@ class SourceDocumentRead(BaseModel):
 class SourceDocumentUpdate(BaseModel):
     """Schema pre update source document."""
 
-    document_type: Literal["invoice", "received_invoice", "cash_receipt"] | None = None
+    document_type: Literal["issued_invoice", "received_invoice", "cash_receipt"] | None = None
     document_number: str | None = Field(None, max_length=50)
     issue_date: date | None = None
     partner_id: int | None = Field(None, gt=0)

@@ -11,7 +11,7 @@ class CurrencyCreate(BaseModel):
     currency_code: str = Field(..., max_length=3, description="ISO 4217 kód meny")
     name: str = Field(..., max_length=100, description="Názov meny")
     symbol: str | None = Field(None, max_length=10, description="Symbol meny (napr. €, $)")
-    decimal_places: int = Field(..., ge=0, le=10, description="Počet desatinných miest")
+    decimal_places: int = Field(2, ge=0, le=10, description="Počet desatinných miest")
     is_active: bool = Field(True, description="Je mena aktívna?")
 
 

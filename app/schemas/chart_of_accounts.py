@@ -7,7 +7,7 @@ class ChartOfAccountsCreate(BaseModel):
     """Schema pre vytvorenie účtového rozvrhu."""
 
     code: str = Field(..., max_length=20, description="Kód účtového rozvrhu")
-    name: str = Field(..., max_length=255, description="Názov účtového rozvrhu")
+    name: str = Field(..., max_length=100, description="Názov účtového rozvrhu")
     description: str | None = Field(None, description="Popis účtového rozvrhu")
 
 
@@ -26,5 +26,5 @@ class ChartOfAccountsUpdate(BaseModel):
     """Schema pre aktualizáciu účtového rozvrhu."""
 
     code: str | None = Field(None, max_length=20, description="Kód účtového rozvrhu")
-    name: str | None = Field(None, max_length=255, description="Názov účtového rozvrhu")
+    name: str | None = Field(None, max_length=100, description="Názov účtového rozvrhu")
     description: str | None = Field(None, description="Popis účtového rozvrhu")

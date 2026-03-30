@@ -21,6 +21,7 @@ from app.schemas.journal_entry import (
 def test_journal_entry_line_create_valid():
     """Test vytvorenia validného JournalEntryLine."""
     line = JournalEntryLineCreate(
+        line_number=1,
         account_id=1,
         partner_id=10,
         tax_rate_id=2,
@@ -29,6 +30,7 @@ def test_journal_entry_line_create_valid():
         description="Test line",
         currency_code="EUR",
     )
+    assert line.line_number == 1
     assert line.account_id == 1
     assert line.debit_amount == Decimal("1000.50")
     assert line.credit_amount == Decimal("0.00")
@@ -38,6 +40,7 @@ def test_journal_entry_line_create_valid():
 def test_journal_entry_line_create_optional_fields():
     """Test že partner_id, tax_rate_id, description sú optional."""
     line = JournalEntryLineCreate(
+        line_number=1,
         account_id=1,
         debit_amount=Decimal("500.00"),
         credit_amount=Decimal("0.00"),
@@ -52,6 +55,7 @@ def test_journal_entry_line_create_negative_amount():
     """Test že záporné amounts sú rejected."""
     with pytest.raises(ValidationError) as exc:
         JournalEntryLineCreate(
+            line_number=1,
             account_id=1,
             debit_amount=Decimal("-100.00"),
             credit_amount=Decimal("0.00"),
@@ -65,6 +69,7 @@ def test_journal_entry_line_create_invalid_currency():
     """Test že currency_code musí mať 3 znaky."""
     with pytest.raises(ValidationError) as exc:
         JournalEntryLineCreate(
+            line_number=1,
             account_id=1,
             debit_amount=Decimal("100.00"),
             credit_amount=Decimal("0.00"),
@@ -122,12 +127,14 @@ def test_journal_entry_create_valid():
         created_by="admin",
         lines=[
             JournalEntryLineCreate(
+                line_number=1,
                 account_id=1,
                 debit_amount=Decimal("1000.00"),
                 credit_amount=Decimal("0.00"),
                 currency_code="EUR",
             ),
             JournalEntryLineCreate(
+                line_number=2,
                 account_id=2,
                 debit_amount=Decimal("0.00"),
                 credit_amount=Decimal("1000.00"),
@@ -142,12 +149,32 @@ def test_journal_entry_create_valid():
 
 
 def test_journal_entry_create_no_lines():
-    """Test že JournalEntry musí mať min. 1 line."""
+    """Test že JournalEntry musí mať min. 2 lines (double-entry)."""
     with pytest.raises(ValidationError) as exc:
         JournalEntryCreate(
             entry_number="DOC-002",
             entry_date=date(2024, 3, 30),
             lines=[],  # Prázdny zoznam
+        )
+    errors = exc.value.errors()
+    assert any(e["loc"] == ("lines",) for e in errors)
+
+
+def test_journal_entry_create_single_line_rejected():
+    """Test že JournalEntry s 1 line je rejected (min 2 pre double-entry)."""
+    with pytest.raises(ValidationError) as exc:
+        JournalEntryCreate(
+            entry_number="DOC-002b",
+            entry_date=date(2024, 3, 30),
+            lines=[
+                JournalEntryLineCreate(
+                    line_number=1,
+                    account_id=1,
+                    debit_amount=Decimal("100.00"),
+                    credit_amount=Decimal("0.00"),
+                    currency_code="EUR",
+                ),
+            ],
         )
     errors = exc.value.errors()
     assert any(e["loc"] == ("lines",) for e in errors)
@@ -160,9 +187,17 @@ def test_journal_entry_create_optional_fields():
         entry_date=date(2024, 3, 30),
         lines=[
             JournalEntryLineCreate(
+                line_number=1,
                 account_id=1,
                 debit_amount=Decimal("100.00"),
                 credit_amount=Decimal("0.00"),
+                currency_code="EUR",
+            ),
+            JournalEntryLineCreate(
+                line_number=2,
+                account_id=2,
+                debit_amount=Decimal("0.00"),
+                credit_amount=Decimal("100.00"),
                 currency_code="EUR",
             ),
         ],

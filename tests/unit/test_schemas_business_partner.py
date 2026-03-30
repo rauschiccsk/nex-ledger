@@ -13,7 +13,7 @@ from app.schemas.business_partner import (
 def test_business_partner_create_valid():
     """Test vytvorenia business partnera s validnými dátami."""
     partner = BusinessPartnerCreate(
-        partner_type="customer",
+        partner_type="CUSTOMER",
         code="CUST001",
         name="Test Customer s.r.o.",
         tax_id="12345678",
@@ -24,7 +24,7 @@ def test_business_partner_create_valid():
         phone="+421900123456",
         is_active=True,
     )
-    assert partner.partner_type == "customer"
+    assert partner.partner_type == "CUSTOMER"
     assert partner.code == "CUST001"
     assert partner.name == "Test Customer s.r.o."
     assert partner.tax_id == "12345678"
@@ -34,10 +34,10 @@ def test_business_partner_create_valid():
 def test_business_partner_create_minimal():
     """Test vytvorenia partnera s minimálnymi povinnými poliami."""
     partner = BusinessPartnerCreate(
-        partner_type="supplier",
+        partner_type="SUPPLIER",
         name="Minimal Supplier",
     )
-    assert partner.partner_type == "supplier"
+    assert partner.partner_type == "SUPPLIER"
     assert partner.name == "Minimal Supplier"
     assert partner.code is None
     assert partner.tax_id is None
