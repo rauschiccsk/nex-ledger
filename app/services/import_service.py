@@ -1,8 +1,9 @@
 """
 Import batch processing service for NEX Ledger.
 
-Handles creation and status management of import batches.
+Handles creation, CRUD operations, and state management of import batches.
 """
+from sqlalchemy import func
 from sqlalchemy.orm import Session
 
 from app.models.import_batch import ImportBatch
@@ -97,3 +98,179 @@ class ImportService:
 
         session.flush()
         return batch
+
+    # ── CRUD Methods ─────────────────────────────────────────────
+
+    @staticmethod
+    def list_batches(
+        session: Session,
+        skip: int = 0,
+        limit: int = 100,
+    ) -> tuple[list[ImportBatch], int]:
+        """
+        List import batches with pagination, ordered by imported_at DESC, batch_id DESC.
+
+        Args:
+            session: Database session
+            skip: Number of records to skip (offset)
+            limit: Maximum number of records to return
+
+        Returns:
+            Tuple of (list of ImportBatch, total count)
+        """
+        total = session.query(func.count(ImportBatch.batch_id)).scalar()
+
+        batches = (
+            session.query(ImportBatch)
+            .order_by(ImportBatch.imported_at.desc(), ImportBatch.batch_id.desc())
+            .offset(skip)
+            .limit(limit)
+            .all()
+        )
+
+        return batches, total
+
+    @staticmethod
+    def get_batch(session: Session, batch_id: int) -> ImportBatch:
+        """
+        Get a single import batch by ID.
+
+        Args:
+            session: Database session
+            batch_id: Import batch ID
+
+        Returns:
+            ImportBatch instance
+
+        Raises:
+            ValueError: If batch not found
+        """
+        batch = session.query(ImportBatch).filter_by(batch_id=batch_id).first()
+
+        if not batch:
+            raise ValueError(f"Import batch {batch_id} not found")
+
+        return batch
+
+    @staticmethod
+    def update_batch(
+        session: Session,
+        batch_id: int,
+        batch_data: dict,
+    ) -> ImportBatch:
+        """
+        Update import batch attributes (not status — use state wrappers for that).
+
+        Allowed fields: filename, row_count, validation_report.
+        Status, imported_at are NOT updatable via this method.
+
+        Args:
+            session: Database session
+            batch_id: Import batch ID
+            batch_data: Dict with fields to update
+
+        Returns:
+            Updated ImportBatch instance
+
+        Raises:
+            ValueError: If batch not found
+        """
+        batch = ImportService.get_batch(session, batch_id)
+
+        allowed_fields = {"filename", "row_count", "validation_report"}
+        for key, value in batch_data.items():
+            if key in allowed_fields:
+                setattr(batch, key, value)
+
+        session.flush()
+        return batch
+
+    @staticmethod
+    def delete_batch(session: Session, batch_id: int) -> None:
+        """
+        Delete an import batch.
+
+        Args:
+            session: Database session
+            batch_id: Import batch ID
+
+        Raises:
+            ValueError: If batch not found
+        """
+        batch = ImportService.get_batch(session, batch_id)
+        session.delete(batch)
+        session.flush()
+
+    # ── State Transition Wrappers ────────────────────────────────
+
+    @staticmethod
+    def validate_batch(session: Session, batch_id: int) -> ImportBatch:
+        """
+        Transition batch from 'pending' to 'validated'.
+
+        Args:
+            session: Database session
+            batch_id: Import batch ID
+
+        Returns:
+            Updated ImportBatch instance
+
+        Raises:
+            ValueError: If batch not found or status is not 'pending'
+        """
+        batch = ImportService.get_batch(session, batch_id)
+
+        if batch.status != "pending":
+            raise ValueError(
+                f"Cannot validate batch {batch_id} with status {batch.status}"
+            )
+
+        return ImportService.update_batch_status(session, batch_id, "validated")
+
+    @staticmethod
+    def import_batch(session: Session, batch_id: int) -> ImportBatch:
+        """
+        Transition batch from 'validated' to 'imported'.
+
+        Args:
+            session: Database session
+            batch_id: Import batch ID
+
+        Returns:
+            Updated ImportBatch instance
+
+        Raises:
+            ValueError: If batch not found or status is not 'validated'
+        """
+        batch = ImportService.get_batch(session, batch_id)
+
+        if batch.status != "validated":
+            raise ValueError(
+                f"Cannot import batch {batch_id} with status {batch.status}"
+            )
+
+        return ImportService.update_batch_status(session, batch_id, "imported")
+
+    @staticmethod
+    def reject_batch(session: Session, batch_id: int) -> ImportBatch:
+        """
+        Transition batch to 'rejected' (from 'pending' or 'validated').
+
+        Args:
+            session: Database session
+            batch_id: Import batch ID
+
+        Returns:
+            Updated ImportBatch instance
+
+        Raises:
+            ValueError: If batch not found or status is not 'pending'/'validated'
+        """
+        batch = ImportService.get_batch(session, batch_id)
+
+        if batch.status not in ("pending", "validated"):
+            raise ValueError(
+                f"Cannot reject batch {batch_id} with status {batch.status}"
+            )
+
+        return ImportService.update_batch_status(session, batch_id, "rejected")
