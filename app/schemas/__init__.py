@@ -36,6 +36,11 @@ from app.schemas.journal_entry import (
     JournalEntryRead,
     JournalEntryUpdate,
 )
+from app.schemas.opening_balance import (
+    OpeningBalanceCreate,
+    OpeningBalanceRead,
+    OpeningBalanceUpdate,
+)
 from app.schemas.tax_rate import TaxRateCreate, TaxRateRead, TaxRateUpdate
 
 __all__ = [
@@ -80,4 +85,8 @@ __all__ = [
     "JournalEntryCreate",
     "JournalEntryRead",
     "JournalEntryUpdate",
+    # OpeningBalance
+    "OpeningBalanceCreate",
+    "OpeningBalanceRead",
+    "OpeningBalanceUpdate",
 ]
