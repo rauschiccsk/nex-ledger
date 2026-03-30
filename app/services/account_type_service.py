@@ -10,6 +10,7 @@ from sqlalchemy.orm import Session
 from app.models.account import Account
 from app.models.account_type import AccountType
 
+
 class AccountTypeService:
     """Service for account type CRUD operations."""
 
