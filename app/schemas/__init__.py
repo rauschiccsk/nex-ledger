@@ -17,6 +17,7 @@ from app.schemas.chart_of_accounts import (
 )
 from app.schemas.common import PaginatedResponse
 from app.schemas.currency import CurrencyCreate, CurrencyRead, CurrencyUpdate
+from app.schemas.import_batch import ImportBatchCreate, ImportBatchRead, ImportBatchUpdate
 from app.schemas.tax_rate import TaxRateCreate, TaxRateRead, TaxRateUpdate
 
 __all__ = [
@@ -38,6 +39,10 @@ __all__ = [
     "CurrencyCreate",
     "CurrencyRead",
     "CurrencyUpdate",
+    # ImportBatch
+    "ImportBatchCreate",
+    "ImportBatchRead",
+    "ImportBatchUpdate",
     # TaxRate
     "TaxRateCreate",
     "TaxRateRead",
