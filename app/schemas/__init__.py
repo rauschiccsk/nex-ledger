@@ -41,6 +41,11 @@ from app.schemas.opening_balance import (
     OpeningBalanceRead,
     OpeningBalanceUpdate,
 )
+from app.schemas.source_document import (
+    SourceDocumentCreate,
+    SourceDocumentRead,
+    SourceDocumentUpdate,
+)
 from app.schemas.tax_rate import TaxRateCreate, TaxRateRead, TaxRateUpdate
 
 __all__ = [
@@ -89,4 +94,8 @@ __all__ = [
     "OpeningBalanceCreate",
     "OpeningBalanceRead",
     "OpeningBalanceUpdate",
+    # SourceDocument
+    "SourceDocumentCreate",
+    "SourceDocumentRead",
+    "SourceDocumentUpdate",
 ]
