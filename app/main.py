@@ -7,6 +7,7 @@ from datetime import UTC, datetime
 
 from fastapi import FastAPI
 
+from app.api.v1 import account_types
 from app.config import settings
 
 app = FastAPI(
@@ -14,6 +15,13 @@ app = FastAPI(
     description="Accounting & invoicing system for ICC",
     version="0.1.0",
     debug=settings.DEBUG,
+)
+
+
+app.include_router(
+    account_types.router,
+    prefix="/api/v1/account-types",
+    tags=["account-types"],
 )
 
 
