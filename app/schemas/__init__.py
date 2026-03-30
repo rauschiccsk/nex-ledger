@@ -23,6 +23,10 @@ from app.schemas.chart_of_accounts import (
 )
 from app.schemas.common import PaginatedResponse
 from app.schemas.currency import CurrencyCreate, CurrencyRead, CurrencyUpdate
+from app.schemas.document_entry_link import (
+    DocumentEntryLinkCreate,
+    DocumentEntryLinkRead,
+)
 from app.schemas.import_batch import (
     ImportBatchCreate,
     ImportBatchRead,
@@ -98,4 +102,7 @@ __all__ = [
     "SourceDocumentCreate",
     "SourceDocumentRead",
     "SourceDocumentUpdate",
+    # DocumentEntryLink
+    "DocumentEntryLinkCreate",
+    "DocumentEntryLinkRead",
 ]
