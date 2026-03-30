@@ -7,7 +7,7 @@ from datetime import UTC, datetime
 
 from fastapi import FastAPI
 
-from app.api.v1 import account_types
+from app.api.v1 import account_types, tax_rates
 from app.config import settings
 
 app = FastAPI(
@@ -22,6 +22,12 @@ app.include_router(
     account_types.router,
     prefix="/api/v1/account-types",
     tags=["account-types"],
+)
+
+app.include_router(
+    tax_rates.router,
+    prefix="/api/v1/tax-rates",
+    tags=["tax-rates"],
 )
 
 
