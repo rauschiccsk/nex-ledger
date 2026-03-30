@@ -1,5 +1,6 @@
 """Pydantic schemas pre API requests/responses."""
 
+from app.schemas.account import AccountCreate, AccountRead, AccountUpdate
 from app.schemas.account_type import (
     AccountTypeCreate,
     AccountTypeRead,
@@ -60,4 +61,8 @@ __all__ = [
     "AccountingPeriodCreate",
     "AccountingPeriodRead",
     "AccountingPeriodUpdate",
+    # Account
+    "AccountCreate",
+    "AccountRead",
+    "AccountUpdate",
 ]
