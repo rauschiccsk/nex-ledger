@@ -10,6 +10,7 @@ from app.services.currency_service import CurrencyService
 from app.services.import_service import ImportService
 from app.services.journal_entry_service import JournalEntryService
 from app.services.opening_balance_service import OpeningBalanceService
+from app.services.source_document_service import SourceDocumentService
 from app.services.tax_rate_service import TaxRateService
 
 __all__ = [
@@ -22,5 +23,6 @@ __all__ = [
     "JournalEntryService",
     "ImportService",
     "OpeningBalanceService",
+    "SourceDocumentService",
     "TaxRateService",
 ]
