@@ -5,6 +5,11 @@ from app.schemas.account_type import (
     AccountTypeRead,
     AccountTypeUpdate,
 )
+from app.schemas.business_partner import (
+    BusinessPartnerCreate,
+    BusinessPartnerRead,
+    BusinessPartnerUpdate,
+)
 from app.schemas.common import PaginatedResponse
 from app.schemas.currency import CurrencyCreate, CurrencyRead, CurrencyUpdate
 from app.schemas.tax_rate import TaxRateCreate, TaxRateRead, TaxRateUpdate
@@ -13,6 +18,9 @@ __all__ = [
     "AccountTypeCreate",
     "AccountTypeRead",
     "AccountTypeUpdate",
+    "BusinessPartnerCreate",
+    "BusinessPartnerRead",
+    "BusinessPartnerUpdate",
     "PaginatedResponse",
     "CurrencyCreate",
     "CurrencyRead",
