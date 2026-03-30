@@ -28,6 +28,14 @@ from app.schemas.import_batch import (
     ImportBatchRead,
     ImportBatchUpdate,
 )
+from app.schemas.journal_entry import (
+    JournalEntryCreate,
+    JournalEntryLineCreate,
+    JournalEntryLineRead,
+    JournalEntryLineUpdate,
+    JournalEntryRead,
+    JournalEntryUpdate,
+)
 from app.schemas.tax_rate import TaxRateCreate, TaxRateRead, TaxRateUpdate
 
 __all__ = [
@@ -65,4 +73,11 @@ __all__ = [
     "AccountCreate",
     "AccountRead",
     "AccountUpdate",
+    # JournalEntry + JournalEntryLine
+    "JournalEntryLineCreate",
+    "JournalEntryLineRead",
+    "JournalEntryLineUpdate",
+    "JournalEntryCreate",
+    "JournalEntryRead",
+    "JournalEntryUpdate",
 ]
